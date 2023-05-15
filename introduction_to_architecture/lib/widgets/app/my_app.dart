@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Introduction to Architecture',
       debugShowCheckedModeBanner: false,
-      home: ExampleWidget(),
+      home: ExampleScreen(),
     );
   }
 }
