@@ -5,11 +5,33 @@ import 'package:provider/provider.dart';
 class Model {
   final int one;
   final int two;
-
   Model({
     required this.one,
     required this.two,
   });
+
+  Model copyWith({
+    int? one,
+    int? two,
+  }) {
+    return Model(
+      one: one ?? this.one,
+      two: two ?? this.two,
+    );
+  }
+
+  @override
+  String toString() => 'Model(one: $one, two: $two)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is Model && other.one == one && other.two == two;
+  }
+
+  @override
+  int get hashCode => one.hashCode ^ two.hashCode;
 }
 
 class ExampleWidget extends StatefulWidget {
@@ -23,12 +45,12 @@ class _ExampleWidgetState extends State<ExampleWidget> {
   var model = Model(one: 0, two: 0);
 
   void inc1() {
-    model = Model(one: model.one + 1, two: model.two);
+    model = model.copyWith(one: model.one + 1);
     setState(() {});
   }
 
   void inc2() {
-    model = Model(one: model.one, two: model.two + 1);
+    model = model.copyWith(two: model.two + 1);
 
     setState(() {});
   }
@@ -84,7 +106,8 @@ class _OneWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = context.watch<Model>().one;
+    // final value = context.watch<Model>().one;
+    final value = context.select((Model value) => value.one);
 
     return Text('$value');
   }
@@ -95,7 +118,8 @@ class _TwoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = context.watch<Model>().two;
+    // final value = context.watch<Model>().two;
+    final value = context.select((Model value) => value.two);
 
     return Text('$value');
   }
