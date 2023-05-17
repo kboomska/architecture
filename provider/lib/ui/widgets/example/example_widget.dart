@@ -17,16 +17,31 @@ class Model extends ChangeNotifier {
   }
 }
 
-class ExampleWidget extends StatelessWidget {
+class ExampleWidget extends StatefulWidget {
   const ExampleWidget({super.key});
 
   @override
+  State<ExampleWidget> createState() => _ExampleWidgetState();
+}
+
+class _ExampleWidgetState extends State<ExampleWidget> {
+  final model = Model();
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => Model(),
-      lazy: true, // default
+    // It helps when passing the model to another screen. In this case,
+    // the receiving screen must have a ChangeNotifierProvider.value.
+    // At this time the first screen continues to control the model.
+    return ChangeNotifierProvider.value(
+      value: model,
       child: const _View(),
     );
+  }
+
+  @override
+  void dispose() {
+    model.dispose();
+    super.dispose();
   }
 }
 
