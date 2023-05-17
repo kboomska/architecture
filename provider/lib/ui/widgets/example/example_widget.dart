@@ -2,19 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-class Model extends ChangeNotifier {
-  var one = 0;
-  var two = 0;
+class Model {
+  final int one;
+  final int two;
 
-  void inc1() {
-    one += 1;
-    notifyListeners();
-  }
-
-  void inc2() {
-    two += 1;
-    notifyListeners();
-  }
+  Model({
+    required this.one,
+    required this.two,
+  });
 }
 
 class ExampleWidget extends StatefulWidget {
@@ -25,23 +20,28 @@ class ExampleWidget extends StatefulWidget {
 }
 
 class _ExampleWidgetState extends State<ExampleWidget> {
-  final model = Model();
+  var model = Model(one: 0, two: 0);
 
-  @override
-  Widget build(BuildContext context) {
-    // It helps when passing the model to another screen. In this case,
-    // the receiving screen must have a ChangeNotifierProvider.value.
-    // At this time the first screen continues to control the model.
-    return ChangeNotifierProvider.value(
-      value: model,
-      child: const _View(),
-    );
+  void inc1() {
+    model = Model(one: model.one + 1, two: model.two);
+    setState(() {});
+  }
+
+  void inc2() {
+    model = Model(one: model.one, two: model.two + 1);
+
+    setState(() {});
   }
 
   @override
-  void dispose() {
-    model.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Provider.value(
+      value: this,
+      child: Provider.value(
+        value: model,
+        child: const _View(),
+      ),
+    );
   }
 }
 
@@ -50,25 +50,18 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<Model>();
-
-    // context.read<Model>();
-    // context.watch<Model>();
-    // context.select((Model value) => value.one);
-
-    // Provider.of(context, listen: true); // watch()
-    // Provider.of(context, listen: false); // read()
+    final state = context.read<_ExampleWidgetState>();
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             ElevatedButton(
-              onPressed: model.inc1,
+              onPressed: state.inc1,
               child: const Text('one'),
             ),
             ElevatedButton(
-              onPressed: model.inc2,
+              onPressed: state.inc2,
               child: const Text('two'),
             ),
             ElevatedButton(
