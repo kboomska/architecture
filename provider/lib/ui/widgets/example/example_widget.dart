@@ -17,18 +17,14 @@ class Model extends ChangeNotifier {
   }
 }
 
-class ExampleWidget extends StatefulWidget {
+class ExampleWidget extends StatelessWidget {
   const ExampleWidget({super.key});
 
-  @override
-  State<ExampleWidget> createState() => _ExampleWidgetState();
-}
-
-class _ExampleWidgetState extends State<ExampleWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => Model(),
+      lazy: true, // default
       child: const _View(),
     );
   }
@@ -40,6 +36,13 @@ class _View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.read<Model>();
+
+    // context.read<Model>();
+    // context.watch<Model>();
+    // context.select((Model value) => value.one);
+
+    // Provider.of(context, listen: true); // watch()
+    // Provider.of(context, listen: false); // read()
 
     return Scaffold(
       body: SafeArea(
