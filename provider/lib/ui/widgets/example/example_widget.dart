@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+
+import 'package:provider/provider.dart';
 
 class Model extends ChangeNotifier {
   var one = 0;
@@ -17,30 +17,6 @@ class Model extends ChangeNotifier {
   }
 }
 
-class ModelProvider extends InheritedNotifier {
-  final Model model;
-
-  const ModelProvider({
-    super.key,
-    required this.model,
-    required Widget child,
-  }) : super(
-          notifier: model,
-          child: child,
-        );
-
-  static ModelProvider? watch(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<ModelProvider>();
-  }
-
-  static ModelProvider? read(BuildContext context) {
-    final widget = context
-        .getElementForInheritedWidgetOfExactType<ModelProvider>()
-        ?.widget;
-    return widget is ModelProvider ? widget : null;
-  }
-}
-
 class ExampleWidget extends StatefulWidget {
   const ExampleWidget({super.key});
 
@@ -49,12 +25,10 @@ class ExampleWidget extends StatefulWidget {
 }
 
 class _ExampleWidgetState extends State<ExampleWidget> {
-  final model = Model();
-
   @override
   Widget build(BuildContext context) {
-    return ModelProvider(
-      model: model,
+    return ChangeNotifierProvider(
+      create: (context) => Model(),
       child: const _View(),
     );
   }
@@ -65,7 +39,7 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = ModelProvider.read(context)!.model;
+    final model = context.read<Model>();
 
     return Scaffold(
       body: SafeArea(
@@ -99,7 +73,7 @@ class _OneWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = ModelProvider.watch(context)!.model.one;
+    final value = context.watch<Model>().one;
 
     return Text('$value');
   }
@@ -110,7 +84,7 @@ class _TwoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = ModelProvider.watch(context)!.model.two;
+    final value = context.watch<Model>().two;
 
     return Text('$value');
   }

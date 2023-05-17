@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:provider/ui/widgets/example/example_widget.dart';
+import 'package:provider_example/ui/widgets/example/example_widget.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
