@@ -107,6 +107,33 @@ class _View extends StatelessWidget {
             const _TwoWidget(),
             const _TreeWidget(),
             const _FourWidget(),
+            // FutureBuilder(
+            //   future: Future<dynamic>.delayed(
+            //     const Duration(
+            //       milliseconds: 100,
+            //     ),
+            //   ),
+            //   builder: (context, snapshot) {
+            //     snapshot.data;
+            //     return Text('');
+            //   },
+            // ),
+            Consumer<Model>(
+              builder: (context, model, child) {
+                return Column(
+                  children: [
+                    child ?? const SizedBox.shrink(),
+                    Text('${model.one}'),
+                  ],
+                );
+              },
+              child: const Text('Some text'),
+            ),
+            Consumer2<Model, ForExample>(
+              builder: (context, model, forExample, _) {
+                return Text('${model.one} : ${forExample.one}');
+              },
+            ),
           ],
         ),
       ),
@@ -152,8 +179,8 @@ class _FourWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final value = context.select((Model value) => value.complex.valueTwo);
-    final value = context.watch<Wrapper>().forExample.one;
+    final value = context.select((Model value) => value.complex.valueTwo);
+    // final value = context.watch<Wrapper>().forExample.one;
 
     return Text('$value');
   }
