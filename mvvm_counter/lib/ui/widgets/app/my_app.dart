@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import 'package:mvvm_counter/ui/widgets/example/example_widget.dart';
 
 class MyApp extends StatelessWidget {
@@ -7,10 +9,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'MVVM Counter',
       debugShowCheckedModeBanner: false,
-      home: ExampleWidget(),
+      home: ChangeNotifierProvider(
+        create: (_) => ViewModel(),
+        child: const ExampleWidget(),
+      ),
     );
   }
 }
