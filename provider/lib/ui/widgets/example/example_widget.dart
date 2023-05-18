@@ -119,12 +119,12 @@ class _ExampleWidgetState extends State<ExampleWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Provider.value(
-      value: this,
-      child: Provider.value(
-        value: model,
-        child: const _View(),
-      ),
+    return MultiProvider(
+      providers: [
+        Provider.value(value: this),
+        Provider.value(value: model),
+      ],
+      child: const _View(),
     );
   }
 }
