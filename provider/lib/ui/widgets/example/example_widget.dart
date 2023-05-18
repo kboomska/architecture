@@ -118,22 +118,24 @@ class _View extends StatelessWidget {
             //     return Text('');
             //   },
             // ),
+            Selector<Model, int>(
+              builder: (context, value, _) {
+                return Text('$value');
+              },
+              selector: (_, model) => model.one,
+              shouldRebuild: (prev, next) => next - prev > 1,
+            ),
             Consumer<Model>(
               builder: (context, model, child) {
-                return Column(
-                  children: [
-                    child ?? const SizedBox.shrink(),
-                    Text('${model.one}'),
-                  ],
-                );
+                return Text('${model.one}');
               },
               child: const Text('Some text'),
             ),
-            Consumer2<Model, ForExample>(
-              builder: (context, model, forExample, _) {
-                return Text('${model.one} : ${forExample.one}');
-              },
-            ),
+            // Consumer2<Model, ForExample>(
+            //   builder: (context, model, forExample, _) {
+            //     return Text('${model.one} : ${forExample.one}');
+            //   },
+            // ),
           ],
         ),
       ),
