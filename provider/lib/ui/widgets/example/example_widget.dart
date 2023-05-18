@@ -33,13 +33,44 @@ class Model extends ChangeNotifier {
   }
 }
 
+class ForExample extends ChangeNotifier {
+  var one = 0;
+
+  void inc1() {
+    one += 1;
+    notifyListeners();
+  }
+}
+
+class Wrapper {
+  final Model model;
+  final ForExample forExample;
+
+  Wrapper(this.model, this.forExample);
+}
+
 class ExampleWidget extends StatelessWidget {
   const ExampleWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => Model(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => Model(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ForExample(),
+        ),
+        ProxyProvider2(update: (
+          BuildContext context,
+          Model model,
+          ForExample forExample,
+          Wrapper? prev,
+        ) {
+          return Wrapper(model, forExample);
+        })
+      ],
       child: const _View(),
     );
   }
@@ -121,7 +152,8 @@ class _FourWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final value = context.select((Model value) => value.complex.valueTwo);
+    // final value = context.select((Model value) => value.complex.valueTwo);
+    final value = context.watch<Wrapper>().forExample.one;
 
     return Text('$value');
   }
