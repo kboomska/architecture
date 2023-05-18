@@ -3,16 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mvvm_counter/domain/entity/user.dart';
 
 class UserDataProvider {
-  final sharedPreferences = SharedPreferences.getInstance();
+  final _sharedPreferences = SharedPreferences.getInstance();
 
-  User user = User(0);
-
-  Future<void> loadValue() async {
-    final age = (await sharedPreferences).getInt('age') ?? 0;
-    user = User(age);
+  Future<User> loadValue() async {
+    final age = (await _sharedPreferences).getInt('age') ?? 0;
+    return User(age);
   }
 
-  Future<void> saveValue() async {
-    (await sharedPreferences).setInt('age', user.age);
+  Future<void> saveValue(User user) async {
+    (await _sharedPreferences).setInt('age', user.age);
   }
 }
