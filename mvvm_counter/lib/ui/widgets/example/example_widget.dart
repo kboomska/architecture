@@ -22,7 +22,7 @@ class ViewModel extends ChangeNotifier {
   }
 
   Future<void> loadValue() async {
-    await _userService.loadValue();
+    await _userService.initialize();
     _updateState();
   }
 
