@@ -11,26 +11,36 @@ class _ViewModelState {
   final String authErrorTitle;
   final String login;
   final String password;
-  final _ViewModelAuthButtonState authButtonState;
+  final bool isAuthProcess;
+
+  _ViewModelAuthButtonState get authButtonState {
+    if (isAuthProcess) {
+      return _ViewModelAuthButtonState.isAuthProcess;
+    } else if (login.isNotEmpty && password.isNotEmpty) {
+      return _ViewModelAuthButtonState.canSubmit;
+    } else {
+      return _ViewModelAuthButtonState.disable;
+    }
+  }
 
   _ViewModelState({
     this.authErrorTitle = '',
     this.login = '',
     this.password = '',
-    this.authButtonState = _ViewModelAuthButtonState.disable,
+    this.isAuthProcess = false,
   });
 
   _ViewModelState copyWith({
     String? authErrorTitle,
     String? login,
     String? password,
-    _ViewModelAuthButtonState? authButtonState,
+    bool? isAuthProcess,
   }) {
     return _ViewModelState(
       authErrorTitle: authErrorTitle ?? this.authErrorTitle,
       login: login ?? this.login,
       password: password ?? this.password,
-      authButtonState: authButtonState ?? this.authButtonState,
+      isAuthProcess: isAuthProcess ?? this.isAuthProcess,
     );
   }
 }
@@ -58,14 +68,27 @@ class _ViewModel extends ChangeNotifier {
 
     if (login.isEmpty || password.isEmpty) return;
 
+    _state = _state.copyWith(
+      authErrorTitle: '',
+      isAuthProcess: true,
+    );
+    notifyListeners();
+
     try {
       await _authService.login(login, password);
+      _state = _state.copyWith(isAuthProcess: false);
+      notifyListeners();
     } on AuthApiProviderIncorrectLoginDataError {
-      _state =
-          _state.copyWith(authErrorTitle: 'Не правильный логин или пароль');
+      _state = _state.copyWith(
+        authErrorTitle: 'Неправильный логин или пароль',
+        isAuthProcess: false,
+      );
       notifyListeners();
     } catch (exception) {
-      _state.copyWith(authErrorTitle: 'Произошла ошибка. Попробуйте ещё раз');
+      _state.copyWith(
+        authErrorTitle: 'Произошла ошибка. Попробуйте ещё раз',
+        isAuthProcess: false,
+      );
       notifyListeners();
     }
   }
@@ -171,7 +194,13 @@ class _AuthButtonWidget extends StatelessWidget {
         ? model.onAuthButtonPressed
         : null;
     final child = authButtonState == _ViewModelAuthButtonState.isAuthProcess
-        ? const CircularProgressIndicator()
+        ? const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          )
         : const Text('Войти');
 
     return ElevatedButton(
