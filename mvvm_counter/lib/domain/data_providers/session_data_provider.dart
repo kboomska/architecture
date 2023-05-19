@@ -15,4 +15,8 @@ class SessionDataProvider {
   Future<void> setApiKey(String key) async {
     (await _sharedPreferences).setString(SessionDataProviderKeys._apiKey, key);
   }
+
+  Future<void> removeApiKey() async {
+    (await _sharedPreferences).remove(SessionDataProviderKeys._apiKey);
+  }
 }
