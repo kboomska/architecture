@@ -13,9 +13,24 @@ class MyApp extends StatelessWidget {
       title: 'MVVM Counter',
       debugShowCheckedModeBanner: false,
       home: LoaderWidget.create(),
-      routes: {
-        'auth': (_) => AuthWidget.create(),
-        'example': (_) => ExampleWidget.create(),
+      // routes: {
+      //   'auth': (_) => AuthWidget.create(),
+      //   'example': (_) => ExampleWidget.create(),
+      // },
+      onGenerateRoute: (settings) {
+        if (settings.name == 'auth') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                AuthWidget.create(),
+            transitionDuration: Duration.zero,
+          );
+        } else if (settings.name == 'example') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                ExampleWidget.create(),
+            transitionDuration: Duration.zero,
+          );
+        }
       },
     );
   }

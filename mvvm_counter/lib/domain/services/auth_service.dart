@@ -6,7 +6,7 @@ class AuthService {
   final _authApiProvider = AuthApiProvider();
 
   Future<bool> checkAuth() async {
-    await Future<void>.delayed(const Duration(seconds: 1));
+    // await Future<void>.delayed(const Duration(seconds: 1));
     final apiKey = await _sessionDataProvider.getApiKey();
     return apiKey != null;
   }
