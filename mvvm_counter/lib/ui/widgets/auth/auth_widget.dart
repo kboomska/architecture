@@ -8,10 +8,10 @@ import 'package:mvvm_counter/domain/services/auth_service.dart';
 enum _ViewModelAuthButtonState { canSubmit, isAuthProcess, disable }
 
 class _ViewModelState {
-  final String authErrorTitle;
-  final String login;
-  final String password;
-  final bool isAuthProcess;
+  String authErrorTitle = '';
+  String login = '';
+  String password = '';
+  bool isAuthProcess = false;
 
   _ViewModelAuthButtonState get authButtonState {
     if (isAuthProcess) {
@@ -22,43 +22,22 @@ class _ViewModelState {
       return _ViewModelAuthButtonState.disable;
     }
   }
-
-  _ViewModelState({
-    this.authErrorTitle = '',
-    this.login = '',
-    this.password = '',
-    this.isAuthProcess = false,
-  });
-
-  _ViewModelState copyWith({
-    String? authErrorTitle,
-    String? login,
-    String? password,
-    bool? isAuthProcess,
-  }) {
-    return _ViewModelState(
-      authErrorTitle: authErrorTitle ?? this.authErrorTitle,
-      login: login ?? this.login,
-      password: password ?? this.password,
-      isAuthProcess: isAuthProcess ?? this.isAuthProcess,
-    );
-  }
 }
 
 class _ViewModel extends ChangeNotifier {
   final _authService = AuthService();
-  _ViewModelState _state = _ViewModelState();
+  final _state = _ViewModelState();
   _ViewModelState get state => _state;
 
   void login(String value) {
     if (_state.login == value) return;
-    _state = _state.copyWith(login: value);
+    _state.login = value;
     notifyListeners();
   }
 
   void password(String value) {
     if (_state.password == value) return;
-    _state = _state.copyWith(password: value);
+    _state.password = value;
     notifyListeners();
   }
 
@@ -68,27 +47,21 @@ class _ViewModel extends ChangeNotifier {
 
     if (login.isEmpty || password.isEmpty) return;
 
-    _state = _state.copyWith(
-      authErrorTitle: '',
-      isAuthProcess: true,
-    );
+    _state.authErrorTitle = '';
+    _state.isAuthProcess = true;
     notifyListeners();
 
     try {
       await _authService.login(login, password);
-      _state = _state.copyWith(isAuthProcess: false);
+      _state.isAuthProcess = false;
       notifyListeners();
     } on AuthApiProviderIncorrectLoginDataError {
-      _state = _state.copyWith(
-        authErrorTitle: 'Неправильный логин или пароль',
-        isAuthProcess: false,
-      );
+      _state.authErrorTitle = 'Неправильный логин или пароль';
+      _state.isAuthProcess = false;
       notifyListeners();
     } catch (exception) {
-      _state.copyWith(
-        authErrorTitle: 'Произошла ошибка. Попробуйте ещё раз',
-        isAuthProcess: false,
-      );
+      _state.authErrorTitle = 'Произошла ошибка. Попробуйте ещё раз';
+      _state.isAuthProcess = false;
       notifyListeners();
     }
   }
