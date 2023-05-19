@@ -1,6 +1,6 @@
 abstract class AuthApiProviderError {}
 
-class AuthApiProviderIncorrectLoginDataError extends Error {}
+class AuthApiProviderIncorrectLoginDataError {}
 
 class AuthApiProvider {
   Future<String> login(String login, String password) async {
