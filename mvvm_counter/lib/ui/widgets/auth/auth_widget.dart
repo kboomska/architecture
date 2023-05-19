@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mvvm_counter/domain/data_providers/auth_api_provider.dart';
+import 'package:mvvm_counter/ui/navigation/main_navigation.dart';
 import 'package:mvvm_counter/domain/services/auth_service.dart';
 
 enum _ViewModelAuthButtonState { canSubmit, isAuthProcess, disable }
@@ -41,7 +42,7 @@ class _ViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> onAuthButtonPressed() async {
+  Future<void> onAuthButtonPressed(BuildContext context) async {
     final login = _state.login;
     final password = _state.password;
 
@@ -55,6 +56,7 @@ class _ViewModel extends ChangeNotifier {
       await _authService.login(login, password);
       _state.isAuthProcess = false;
       notifyListeners();
+      if (context.mounted) MainNavigation.showLoader(context);
     } on AuthApiProviderIncorrectLoginDataError {
       _state.authErrorTitle = 'Неправильный логин или пароль';
       _state.isAuthProcess = false;
@@ -177,7 +179,7 @@ class _AuthButtonWidget extends StatelessWidget {
         : const Text('Войти');
 
     return ElevatedButton(
-      onPressed: onPressed,
+      onPressed: () => onPressed?.call(context),
       child: child,
     );
   }
