@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
-
-import 'package:mvvm_counter/ui/widgets/example/example_widget.dart';
+import 'package:mvvm_counter/ui/widgets/auth/auth_widget.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -12,10 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'MVVM Counter',
       debugShowCheckedModeBanner: false,
-      home: ChangeNotifierProvider(
-        create: (_) => ViewModel(),
-        child: const ExampleWidget(),
-      ),
+      home: AuthWidget.create(),
     );
   }
 }

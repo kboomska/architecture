@@ -4,20 +4,20 @@ import 'package:provider/provider.dart';
 
 import 'package:mvvm_counter/domain/services/user_service.dart';
 
-class ViewModelState {
+class _ViewModelState {
   final String ageTitle;
 
-  ViewModelState({
+  _ViewModelState({
     required this.ageTitle,
   });
 }
 
-class ViewModel extends ChangeNotifier {
+class _ViewModel extends ChangeNotifier {
   final _userService = UserService();
-  ViewModelState _state = ViewModelState(ageTitle: '');
-  ViewModelState get state => _state;
+  _ViewModelState _state = _ViewModelState(ageTitle: '');
+  _ViewModelState get state => _state;
 
-  ViewModel() {
+  _ViewModel() {
     loadValue();
   }
 
@@ -39,7 +39,7 @@ class ViewModel extends ChangeNotifier {
   void _updateState() {
     final user = _userService.user;
 
-    _state = ViewModelState(
+    _state = _ViewModelState(
       ageTitle: user.age.toString(),
     );
     notifyListeners();
@@ -48,6 +48,13 @@ class ViewModel extends ChangeNotifier {
 
 class ExampleWidget extends StatelessWidget {
   const ExampleWidget({super.key});
+
+  static Widget create() {
+    return ChangeNotifierProvider(
+      create: (_) => _ViewModel(),
+      child: const ExampleWidget(),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +81,7 @@ class _AgeTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title =
-        context.select((ViewModel viewModel) => viewModel.state.ageTitle);
+        context.select((_ViewModel viewModel) => viewModel.state.ageTitle);
 
     return SizedBox(
       width: 60,
@@ -91,7 +98,7 @@ class _AgeIncrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<ViewModel>();
+    final viewModel = context.read<_ViewModel>();
 
     return ElevatedButton(
       onPressed: viewModel.onIncrementButtonPressed,
@@ -105,7 +112,7 @@ class _AgeDecrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<ViewModel>();
+    final viewModel = context.read<_ViewModel>();
 
     return ElevatedButton(
       onPressed: viewModel.onDecrementButtonPressed,
