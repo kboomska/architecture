@@ -1,38 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:mvvm_counter/domain/data_providers/auth_api_provider.dart';
 
 import 'package:provider/provider.dart';
 
+import 'package:mvvm_counter/domain/data_providers/auth_api_provider.dart';
 import 'package:mvvm_counter/domain/services/auth_service.dart';
+
+enum _ViewModelAuthButtonState { canSubmit, isAuthProcess, disable }
 
 class _ViewModelState {
   final String authErrorTitle;
   final String login;
   final String password;
-  final bool canSubmit;
-  final bool isAuthProcess;
+  final _ViewModelAuthButtonState authButtonState;
 
   _ViewModelState({
     this.authErrorTitle = '',
     this.login = '',
     this.password = '',
-    this.canSubmit = false,
-    this.isAuthProcess = false,
+    this.authButtonState = _ViewModelAuthButtonState.disable,
   });
 
   _ViewModelState copyWith({
     String? authErrorTitle,
     String? login,
     String? password,
-    bool? canSubmit,
-    bool? isAuthProcess,
+    _ViewModelAuthButtonState? authButtonState,
   }) {
     return _ViewModelState(
       authErrorTitle: authErrorTitle ?? this.authErrorTitle,
       login: login ?? this.login,
       password: password ?? this.password,
-      canSubmit: canSubmit ?? this.canSubmit,
-      isAuthProcess: isAuthProcess ?? this.isAuthProcess,
+      authButtonState: authButtonState ?? this.authButtonState,
     );
   }
 }
@@ -42,19 +40,19 @@ class _ViewModel extends ChangeNotifier {
   _ViewModelState _state = _ViewModelState();
   _ViewModelState get state => _state;
 
-  set login(String value) {
+  void login(String value) {
     if (_state.login == value) return;
     _state = _state.copyWith(login: value);
     notifyListeners();
   }
 
-  set password(String value) {
+  void password(String value) {
     if (_state.password == value) return;
     _state = _state.copyWith(password: value);
     notifyListeners();
   }
 
-  Future<void> auth() async {
+  Future<void> onAuthButtonPressed() async {
     final login = _state.login;
     final password = _state.password;
 
@@ -87,8 +85,98 @@ class AuthWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                _ErrorTitleWidget(),
+                SizedBox(
+                  height: 10,
+                ),
+                _LoginWidget(),
+                SizedBox(
+                  height: 10,
+                ),
+                _PasswordWidget(),
+                SizedBox(
+                  height: 10,
+                ),
+                _AuthButtonWidget(),
+              ],
+            ),
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _LoginWidget extends StatelessWidget {
+  const _LoginWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<_ViewModel>();
+
+    return TextField(
+      decoration: const InputDecoration(
+        labelText: 'Логин',
+        border: OutlineInputBorder(),
+      ),
+      onChanged: model.login,
+    );
+  }
+}
+
+class _PasswordWidget extends StatelessWidget {
+  const _PasswordWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<_ViewModel>();
+
+    return TextField(
+      decoration: const InputDecoration(
+        labelText: 'Пароль',
+        border: OutlineInputBorder(),
+      ),
+      onChanged: model.password,
+    );
+  }
+}
+
+class _ErrorTitleWidget extends StatelessWidget {
+  const _ErrorTitleWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authErrorTitle =
+        context.select((_ViewModel value) => value.state.authErrorTitle);
+
+    return Text(authErrorTitle);
+  }
+}
+
+class _AuthButtonWidget extends StatelessWidget {
+  const _AuthButtonWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.read<_ViewModel>();
+    final authButtonState =
+        context.select((_ViewModel value) => value.state.authButtonState);
+    final onPressed = authButtonState == _ViewModelAuthButtonState.canSubmit
+        ? model.onAuthButtonPressed
+        : null;
+    final child = authButtonState == _ViewModelAuthButtonState.isAuthProcess
+        ? const CircularProgressIndicator()
+        : const Text('Войти');
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      child: child,
     );
   }
 }
