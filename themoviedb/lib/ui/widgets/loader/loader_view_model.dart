@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
+
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/services/auth_service.dart';
 
 class LoaderViewModel {
-  final _sessionDataProvider = SessionDataProvider();
   final BuildContext context;
+  final _authService = AuthService();
 
   LoaderViewModel(this.context) {
     asyncInit();
@@ -15,8 +16,7 @@ class LoaderViewModel {
   }
 
   Future<void> chechAuth() async {
-    final sessionId = await _sessionDataProvider.getSessionId();
-    final isAuth = sessionId != null;
+    final isAuth = await _authService.isAuth();
     final nextScreen = isAuth
         ? MainNavigationRouteNames.mainScreen
         : MainNavigationRouteNames.auth;
