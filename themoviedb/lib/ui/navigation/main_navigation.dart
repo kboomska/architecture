@@ -7,7 +7,7 @@ import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget_model.dart';
-import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
+import 'package:themoviedb/domain/factories/screen_factory.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
 
 abstract class MainNavigationRouteNames {
@@ -19,8 +19,9 @@ abstract class MainNavigationRouteNames {
 }
 
 class MainNavigation {
+  static final _screenFactory = ScreenFactory();
   final routes = <String, Widget Function(BuildContext)>{
-    MainNavigationRouteNames.loader: (context) => LoaderWidget.create(),
+    MainNavigationRouteNames.loader: (_) => _screenFactory.makeLoader(),
     MainNavigationRouteNames.auth: (context) => NotifierProvider(
           create: () => AuthWidgetModel(),
           child: const AuthWidget(),
