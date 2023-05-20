@@ -7,21 +7,20 @@ import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget_model.dart';
+import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
 
 abstract class MainNavigationRouteNames {
-  static const auth = 'auth';
-  static const mainScreen = '/';
-  static const movieDetails = '/movie_details';
-  static const movieTrailer = '/movie_details/trailer';
+  static const loader = '/';
+  static const auth = '/auth';
+  static const mainScreen = '/main_screen';
+  static const movieDetails = '/main_screen/movie_details';
+  static const movieTrailer = '/main_screen/movie_details/trailer';
 }
 
 class MainNavigation {
-  String initialRoute(bool isAuth) => isAuth
-      ? MainNavigationRouteNames.mainScreen
-      : MainNavigationRouteNames.auth;
-
   final routes = <String, Widget Function(BuildContext)>{
+    MainNavigationRouteNames.loader: (context) => LoaderWidget.create(),
     MainNavigationRouteNames.auth: (context) => NotifierProvider(
           create: () => AuthWidgetModel(),
           child: const AuthWidget(),

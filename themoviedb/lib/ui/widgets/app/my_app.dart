@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
-import 'package:themoviedb/ui/widgets/app/my_app_model.dart';
 import 'package:themoviedb/ui/theme/app_colors.dart';
 
 class MyApp extends StatelessWidget {
@@ -14,8 +12,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = Provider.read<MyAppModel>(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TMDB',
@@ -39,7 +35,7 @@ class MyApp extends StatelessWidget {
         Locale('ru', 'RU'),
       ],
       routes: mainNavigation.routes,
-      initialRoute: mainNavigation.initialRoute(model?.isAuth == true),
+      initialRoute: MainNavigationRouteNames.loader,
       onGenerateRoute: mainNavigation.onGenerateRoute,
     );
   }
