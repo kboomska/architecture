@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:themoviedb/domain/api_client/api_client_exception.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/services/auth_service.dart';
-import 'package:themoviedb/domain/api_client/api_client.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final _authService = AuthService();

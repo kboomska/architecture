@@ -1,16 +1,7 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:themoviedb/domain/entity/popular_movie_response.dart';
+import 'package:themoviedb/domain/api_client/network_client.dart';
+import 'package:themoviedb/configuration/configuration.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
-
-enum ApiClientExceptionType { network, auth, other, sessionExpired }
-
-class ApiClientException implements Exception {
-  final ApiClientExceptionType type;
-
-  ApiClientException(this.type);
-}
 
 enum MediaType { movie, tv }
 
@@ -26,12 +17,7 @@ extension MediaTypeAsString on MediaType {
 }
 
 class ApiClient {
-  final _client = HttpClient();
-  static const _host = 'https://api.themoviedb.org/3';
-  static const _imageUrl = 'https://image.tmdb.org/t/p/w500';
-  static const _apiKey = String.fromEnvironment('TMDB_KEY');
-
-  static String imageUrl(String path) => _imageUrl + path;
+  final _networkClient = NetworkClient();
 
   Future<String> auth({
     required String username,
@@ -50,67 +36,6 @@ class ApiClient {
     return sessionId;
   }
 
-  Uri _makeUri(String path, [Map<String, dynamic>? parameters]) {
-    final uri = Uri.parse('$_host$path');
-    if (parameters != null) {
-      return uri.replace(queryParameters: parameters);
-    } else {
-      return uri;
-    }
-  }
-
-  Future<T> _get<T>(
-    String path,
-    T Function(dynamic json) parser, [
-    Map<String, dynamic>? parameters,
-  ]) async {
-    final url = _makeUri(path, parameters);
-
-    try {
-      final request = await _client.getUrl(url);
-      final response = await request.close();
-      final dynamic json = (await response.jsonDecode());
-      _validateResponse(response, json);
-      final result = parser(json);
-      return result;
-    } on SocketException {
-      throw ApiClientException(ApiClientExceptionType.network);
-    } on ApiClientException {
-      rethrow;
-    } catch (_) {
-      throw ApiClientException(ApiClientExceptionType.other);
-    }
-  }
-
-  Future<T> _post<T>(
-    String path,
-    T Function(dynamic json) parser,
-    Map<String, dynamic> bodyParameters, [
-    Map<String, dynamic>? urlParameters,
-  ]) async {
-    try {
-      final url = _makeUri(
-        path,
-        urlParameters,
-      );
-
-      final request = await _client.postUrl(url);
-      request.headers.contentType = ContentType.json;
-      request.write(jsonEncode(bodyParameters));
-      final response = await request.close();
-      final dynamic json = (await response.jsonDecode());
-      _validateResponse(response, json);
-      final result = parser(json);
-      return result;
-    } on SocketException {
-      throw ApiClientException(ApiClientExceptionType.network);
-    } on ApiClientException {
-      rethrow;
-    } catch (_) {
-      throw ApiClientException(ApiClientExceptionType.other);
-    }
-  }
-
   Future<String> _makeToken() async {
     String parser(dynamic json) {
       final jsonMap = json as Map<String, dynamic>;
@@ -118,10 +43,10 @@ class ApiClient {
       return token;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/authentication/token/new',
       parser,
-      <String, dynamic>{'api_key': _apiKey},
+      <String, dynamic>{'api_key': Configuration.apiKey},
     );
 
     return result;
@@ -136,11 +61,11 @@ class ApiClient {
       return result;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/account',
       parser,
       <String, dynamic>{
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'session_id': sessionId,
       },
     );
@@ -155,11 +80,11 @@ class ApiClient {
       return response;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/movie/popular',
       parser,
       <String, dynamic>{
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'page': page.toString(),
         'language': language,
       },
@@ -176,11 +101,11 @@ class ApiClient {
       return response;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/search/movie',
       parser,
       <String, dynamic>{
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'page': page.toString(),
         'language': language,
         'include_adult': true.toString(),
@@ -201,12 +126,12 @@ class ApiClient {
       return response;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/movie/$movieId',
       parser,
       <String, dynamic>{
         'append_to_response': 'credits,videos',
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'language': locale,
       },
     );
@@ -224,11 +149,11 @@ class ApiClient {
       return result;
     }
 
-    final result = _get(
+    final result = _networkClient.get(
       '/movie/$movieId/account_states',
       parser,
       <String, dynamic>{
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'session_id': sessionId,
       },
     );
@@ -255,12 +180,12 @@ class ApiClient {
       return result;
     }
 
-    _post(
+    _networkClient.post(
       '/account/$accountId/favorite',
       parser,
       parameters,
       <String, dynamic>{
-        'api_key': _apiKey,
+        'api_key': Configuration.apiKey,
         'session_id': sessionId,
       },
     );
@@ -283,11 +208,11 @@ class ApiClient {
       return token;
     }
 
-    final result = _post(
+    final result = _networkClient.post(
       '/authentication/token/validate_with_login',
       parser,
       parameters,
-      <String, dynamic>{'api_key': _apiKey},
+      <String, dynamic>{'api_key': Configuration.apiKey},
     );
 
     return result;
@@ -306,36 +231,13 @@ class ApiClient {
       return sessionId;
     }
 
-    final result = _post(
+    final result = _networkClient.post(
       '/authentication/session/new',
       parser,
       parameters,
-      <String, dynamic>{'api_key': _apiKey},
+      <String, dynamic>{'api_key': Configuration.apiKey},
     );
 
     return result;
-  }
-
-  void _validateResponse(HttpClientResponse response, dynamic json) {
-    if (response.statusCode == 401) {
-      final dynamic status = json['status_code'];
-      final code = status is int ? status : 0;
-      if (code == 30) {
-        throw ApiClientException(ApiClientExceptionType.auth);
-      } else if (code == 3) {
-        throw ApiClientException(ApiClientExceptionType.sessionExpired);
-      } else {
-        throw ApiClientException(ApiClientExceptionType.other);
-      }
-    }
-  }
-}
-
-extension HttpClientResponseJsonDecode on HttpClientResponse {
-  Future<dynamic> jsonDecode() async {
-    return transform(utf8.decoder).toList().then((jsonStrings) {
-      final result = jsonStrings.join();
-      return result;
-    }).then((jsonString) => json.decode(jsonString));
   }
 }

@@ -4,8 +4,8 @@ import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.d
 import 'package:themoviedb/ui/widgets/elements/radial_percent_widget.dart';
 import 'package:themoviedb/domain/entity/movie_details_credits.dart';
 import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
+import 'package:themoviedb/domain/api_client/image_downloader.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
-import 'package:themoviedb/domain/api_client/api_client.dart';
 
 class MovieDetailsMainInfoWidget extends StatelessWidget {
   const MovieDetailsMainInfoWidget({super.key});
@@ -96,14 +96,14 @@ class _TopPostersWidget extends StatelessWidget {
       child: Stack(
         children: [
           backdropPath != null
-              ? Image.network(ApiClient.imageUrl(backdropPath))
+              ? Image.network(ImageDownloader.imageUrl(backdropPath))
               : const SizedBox.shrink(),
           Positioned(
             top: 20,
             left: 20,
             bottom: 20,
             child: posterPath != null
-                ? Image.network(ApiClient.imageUrl(posterPath))
+                ? Image.network(ImageDownloader.imageUrl(posterPath))
                 : const SizedBox.shrink(),
           ),
           Positioned(

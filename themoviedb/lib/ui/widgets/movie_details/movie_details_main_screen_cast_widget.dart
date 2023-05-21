@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
+import 'package:themoviedb/domain/api_client/image_downloader.dart';
 import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
-import 'package:themoviedb/domain/api_client/api_client.dart';
 
 class MovieDetailsMainScreenCastWidget extends StatelessWidget {
   const MovieDetailsMainScreenCastWidget({super.key});
@@ -113,7 +113,7 @@ class _ActorListItemWidget extends StatelessWidget {
             children: [
               profilePath != null
                   ? Image.network(
-                      ApiClient.imageUrl(profilePath),
+                      ImageDownloader.imageUrl(profilePath),
                       height: 120,
                       width: 120,
                       fit: BoxFit.fitWidth,
