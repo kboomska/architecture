@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:themoviedb/ui/widgets/auth/auth_widget_model.dart';
+import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/theme/app_button_style.dart';
 
 class AuthWidget extends StatelessWidget {

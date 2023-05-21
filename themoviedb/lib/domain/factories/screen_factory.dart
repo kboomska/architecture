@@ -10,7 +10,7 @@ import 'package:themoviedb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_view_model.dart';
-import 'package:themoviedb/ui/widgets/auth/auth_widget_model.dart';
+import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
 
