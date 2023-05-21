@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:themoviedb/domain/entity/popular_movie_response.dart';
+import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
-import 'package:themoviedb/domain/api_client/api_client.dart';
 import 'package:themoviedb/domain/entity/movie.dart';
 
 class MovieListModel extends ChangeNotifier {
-  final _apiClient = ApiClient();
+  final _movieApiClient = MovieApiClient();
   final _movies = <Movie>[];
   late int _currentPage;
   late int _totalPage;
@@ -44,9 +44,9 @@ class MovieListModel extends ChangeNotifier {
   Future<PopularMovieResponse> _loadMovies(int page, String language) async {
     final query = _searchQuery;
     if (query == null) {
-      return await _apiClient.popularMovies(page, language);
+      return await _movieApiClient.popularMovies(page, language);
     } else {
-      return await _apiClient.searchMovies(page, language, query);
+      return await _movieApiClient.searchMovies(page, language, query);
     }
   }
 
