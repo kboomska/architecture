@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:themoviedb/ui/widgets/movie_list/movie_list_model.dart';
+import 'package:themoviedb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:themoviedb/domain/api_client/image_downloader.dart';
 import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
 
@@ -9,7 +9,7 @@ class MovieListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.watch<MovieListModel>(context);
+    final model = NotifierProvider.watch<MovieListViewModel>(context);
     if (model == null) return const SizedBox.shrink();
 
     return Stack(

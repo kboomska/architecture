@@ -9,7 +9,7 @@ import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/entity/movie.dart';
 
-class MovieListModel extends ChangeNotifier {
+class MovieListViewModel extends ChangeNotifier {
   final _movieApiClient = MovieApiClient();
   final _movies = <Movie>[];
   late int _currentPage;

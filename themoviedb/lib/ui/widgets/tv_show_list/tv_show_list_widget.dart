@@ -19,14 +19,14 @@ class TVShow {
   });
 }
 
-class TWShowListWidget extends StatefulWidget {
-  TWShowListWidget({Key? key}) : super(key: key);
+class TVShowListWidget extends StatefulWidget {
+  const TVShowListWidget({Key? key}) : super(key: key);
 
   @override
-  _TWShowListWidgetState createState() => _TWShowListWidgetState();
+  State<TVShowListWidget> createState() => _TVShowListWidgetState();
 }
 
-class _TWShowListWidgetState extends State<TWShowListWidget> {
+class _TVShowListWidgetState extends State<TVShowListWidget> {
   final _movies = [
     TVShow(
       id: 1,
