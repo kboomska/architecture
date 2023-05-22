@@ -1,26 +1,42 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 
-import 'package:themoviedb/domain/entity/popular_movie_response.dart';
 import 'package:themoviedb/domain/api_client/movie_api_client.dart';
-import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/entity/movie.dart';
+import 'package:themoviedb/domain/entity/popular_movie_response.dart';
+import 'package:themoviedb/ui/navigation/main_navigation.dart';
+
+class MovieListPreparedData {
+  final int id;
+  final String? posterPath;
+  final String title;
+  final String releaseDate;
+  final String overview;
+
+  MovieListPreparedData({
+    required this.id,
+    required this.posterPath,
+    required this.title,
+    required this.releaseDate,
+    required this.overview,
+  });
+}
 
 class MovieListViewModel extends ChangeNotifier {
   final _movieApiClient = MovieApiClient();
-  final _movies = <Movie>[];
+  Timer? searchDebounce;
+  String _locale = '';
+
+  final _movies = <MovieListPreparedData>[];
   late int _currentPage;
   late int _totalPage;
   var _isLoadingInProgress = false;
   String? _searchQuery;
   late DateFormat _dateFormat;
-  String _locale = '';
-  Timer? searchDebounce;
 
-  List<Movie> get movies => List.unmodifiable(_movies);
+  List<MovieListPreparedData> get movies => List.unmodifiable(_movies);
 
   String stringFromDate(DateTime? date) =>
       date != null ? _dateFormat.format(date) : '';
@@ -57,7 +73,7 @@ class MovieListViewModel extends ChangeNotifier {
 
     try {
       final moviesResponse = await _loadMovies(nextPage, _locale);
-      _movies.addAll(moviesResponse.movies);
+      _movies.addAll(moviesResponse.movies.map(_prepareMovieData).toList());
       _currentPage = moviesResponse.page;
       _totalPage = moviesResponse.totalPages;
       _isLoadingInProgress = false;
@@ -65,6 +81,18 @@ class MovieListViewModel extends ChangeNotifier {
     } catch (e) {
       _isLoadingInProgress = false;
     }
+  }
+
+  MovieListPreparedData _prepareMovieData(Movie movie) {
+    final date = movie.releaseDate;
+    final releaseDate = date != null ? _dateFormat.format(date) : '';
+    return MovieListPreparedData(
+      posterPath: movie.posterPath,
+      id: movie.id,
+      title: movie.title,
+      releaseDate: releaseDate,
+      overview: movie.overview,
+    );
   }
 
   void onMovieTap(BuildContext context, int index) {
