@@ -1,12 +1,16 @@
 import 'package:themoviedb/domain/entity/popular_movie_response.dart';
 import 'package:themoviedb/domain/api_client/network_client.dart';
-import 'package:themoviedb/configuration/configuration.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
+import 'package:themoviedb/configuration/configuration.dart';
 
 class MovieApiClient {
   final _networkClient = NetworkClient();
 
-  Future<PopularMovieResponse> popularMovies(int page, String language) async {
+  Future<PopularMovieResponse> popularMovies(
+    int page,
+    String language,
+    String apiKey,
+  ) async {
     PopularMovieResponse parser(dynamic json) {
       final jsonMap = json as Map<String, dynamic>;
       final response = PopularMovieResponse.fromJson(jsonMap);
@@ -17,7 +21,7 @@ class MovieApiClient {
       '/movie/popular',
       parser,
       <String, dynamic>{
-        'api_key': Configuration.apiKey,
+        'api_key': apiKey,
         'page': page.toString(),
         'language': language,
       },
@@ -27,7 +31,11 @@ class MovieApiClient {
   }
 
   Future<PopularMovieResponse> searchMovies(
-      int page, String language, String query) async {
+    int page,
+    String language,
+    String query,
+    String apiKey,
+  ) async {
     PopularMovieResponse parser(dynamic json) {
       final jsonMap = json as Map<String, dynamic>;
       final response = PopularMovieResponse.fromJson(jsonMap);
@@ -38,7 +46,7 @@ class MovieApiClient {
       '/search/movie',
       parser,
       <String, dynamic>{
-        'api_key': Configuration.apiKey,
+        'api_key': apiKey,
         'page': page.toString(),
         'language': language,
         'include_adult': true.toString(),

@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:intl/intl.dart';
 
-import 'package:themoviedb/domain/api_client/movie_api_client.dart';
-import 'package:themoviedb/domain/entity/movie.dart';
-import 'package:themoviedb/domain/entity/popular_movie_response.dart';
+import 'package:themoviedb/domain/services/movie_service.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/entity/movie.dart';
+import 'package:themoviedb/Library/paginator.dart';
 
 class MovieListPreparedData {
   final int id;
@@ -25,21 +26,48 @@ class MovieListPreparedData {
 }
 
 class MovieListViewModel extends ChangeNotifier {
-  final _movieApiClient = MovieApiClient();
+  final _movieService = MovieService();
+  late final Paginator<Movie> _popularMoviePaginator;
+  late final Paginator<Movie> _searchMoviePaginator;
   Timer? searchDebounce;
   String _locale = '';
 
-  final _movies = <MovieListPreparedData>[];
-  late int _currentPage;
-  late int _totalPage;
-  var _isLoadingInProgress = false;
+  var _movies = <MovieListPreparedData>[];
   String? _searchQuery;
-  late DateFormat _dateFormat;
+  bool get isSearchMode {
+    final searchQuery = _searchQuery;
+    return searchQuery != null && searchQuery.isNotEmpty;
+  }
 
   List<MovieListPreparedData> get movies => List.unmodifiable(_movies);
+  late DateFormat _dateFormat;
 
-  String stringFromDate(DateTime? date) =>
-      date != null ? _dateFormat.format(date) : '';
+  MovieListViewModel() {
+    _popularMoviePaginator = Paginator<Movie>(
+      (page) async {
+        final result = await _movieService.popularMovies(page, _locale);
+        return PaginatorLoadResult(
+          data: result.movies,
+          currentPage: result.page,
+          totalPages: result.totalPages,
+        );
+      },
+    );
+    _searchMoviePaginator = Paginator<Movie>(
+      (page) async {
+        final result = await _movieService.searchMovies(
+          page,
+          _locale,
+          _searchQuery ?? '',
+        );
+        return PaginatorLoadResult(
+          data: result.movies,
+          currentPage: result.page,
+          totalPages: result.totalPages,
+        );
+      },
+    );
+  }
 
   Future<void> setupLocale(BuildContext context) async {
     final locale = Localizations.localeOf(context).toLanguageTag();
@@ -51,36 +79,21 @@ class MovieListViewModel extends ChangeNotifier {
   }
 
   Future<void> _resetList() async {
-    _currentPage = 0;
-    _totalPage = 1;
+    await _popularMoviePaginator.reset();
+    await _searchMoviePaginator.reset();
     _movies.clear();
     await _loadNextPage();
   }
 
-  Future<PopularMovieResponse> _loadMovies(int page, String language) async {
-    final query = _searchQuery;
-    if (query == null) {
-      return await _movieApiClient.popularMovies(page, language);
-    } else {
-      return await _movieApiClient.searchMovies(page, language, query);
-    }
-  }
-
   Future<void> _loadNextPage() async {
-    if (_isLoadingInProgress || _currentPage >= _totalPage) return;
-    _isLoadingInProgress = true;
-    final nextPage = _currentPage + 1;
-
-    try {
-      final moviesResponse = await _loadMovies(nextPage, _locale);
-      _movies.addAll(moviesResponse.movies.map(_prepareMovieData).toList());
-      _currentPage = moviesResponse.page;
-      _totalPage = moviesResponse.totalPages;
-      _isLoadingInProgress = false;
-      notifyListeners();
-    } catch (e) {
-      _isLoadingInProgress = false;
+    if (isSearchMode) {
+      await _searchMoviePaginator.loadNextPage();
+      _movies = _searchMoviePaginator.data.map(_prepareMovieData).toList();
+    } else {
+      await _popularMoviePaginator.loadNextPage();
+      _movies = _popularMoviePaginator.data.map(_prepareMovieData).toList();
     }
+    notifyListeners();
   }
 
   MovieListPreparedData _prepareMovieData(Movie movie) {
@@ -109,7 +122,12 @@ class MovieListViewModel extends ChangeNotifier {
       final searchQuery = text.isNotEmpty ? text : null;
       if (_searchQuery == searchQuery) return;
       _searchQuery = searchQuery;
-      await _resetList();
+
+      _movies.clear();
+      if (isSearchMode) {
+        await _searchMoviePaginator.reset();
+      }
+      _loadNextPage();
     });
   }
 
