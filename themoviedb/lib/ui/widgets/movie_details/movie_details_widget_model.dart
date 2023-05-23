@@ -10,6 +10,11 @@ import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
 
+class MovieDetailsData {
+  String title = '';
+  bool isLoading = true;
+}
+
 class MovieDetailsWidgetModel extends ChangeNotifier {
   final _sessionDataProvider = SessionDataProvider();
   final _accountApiClient = AccountApiClient();
@@ -17,6 +22,7 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
   final _authService = AuthService();
 
   final int movieId;
+  final data = MovieDetailsData();
   String _locale = '';
   bool _isFavorite = false;
   MovieDetails? _movieDetails;
@@ -37,6 +43,7 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     if (_locale == locale) return;
     _locale = locale;
     _dateFormat = DateFormat.yMMMMd(_locale);
+    updateData(null);
     await loadDetails(context);
   }
 
@@ -47,10 +54,20 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
       if (sessionId != null) {
         _isFavorite = await _movieApiClient.isFavorite(movieId, sessionId);
       }
-      notifyListeners();
+      updateData(_movieDetails);
     } on ApiClientException catch (e) {
       if (context.mounted) _handleApiClientException(e, context);
     }
+  }
+
+  void updateData(MovieDetails? details) {
+    data.title = details?.title ?? 'Загрузка...';
+    data.isLoading = details == null;
+    if (details == null) {
+      notifyListeners();
+      return;
+    }
+    notifyListeners();
   }
 
   Future<void> toggleFavorite(BuildContext context) async {
