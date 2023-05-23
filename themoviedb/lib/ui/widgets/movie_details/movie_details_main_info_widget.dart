@@ -110,7 +110,7 @@ class _TopPostersWidget extends StatelessWidget {
             top: 5,
             right: 5,
             child: IconButton(
-              onPressed: () => model?.toggleFavorite(),
+              onPressed: () => model?.toggleFavorite(context),
               icon: Icon(
                 model?.isFavorite == true ? Icons.star : Icons.star_border,
                 color: Colors.amber,

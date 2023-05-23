@@ -6,19 +6,21 @@ import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/domain/api_client/api_client_exception.dart';
 import 'package:themoviedb/domain/api_client/account_api_client.dart';
 import 'package:themoviedb/domain/api_client/movie_api_client.dart';
+import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
 
 class MovieDetailsWidgetModel extends ChangeNotifier {
   final _sessionDataProvider = SessionDataProvider();
   final _accountApiClient = AccountApiClient();
   final _movieApiClient = MovieApiClient();
+  final _authService = AuthService();
 
   final int movieId;
   String _locale = '';
   bool _isFavorite = false;
   MovieDetails? _movieDetails;
   late DateFormat _dateFormat;
-  Future<void>? Function()? onSessionExpired;
 
   MovieDetailsWidgetModel(this.movieId);
 
@@ -35,10 +37,10 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     if (_locale == locale) return;
     _locale = locale;
     _dateFormat = DateFormat.yMMMMd(_locale);
-    await loadDetails();
+    await loadDetails(context);
   }
 
-  Future<void> loadDetails() async {
+  Future<void> loadDetails(BuildContext context) async {
     try {
       final sessionId = await _sessionDataProvider.getSessionId();
       _movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
@@ -47,11 +49,11 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
       }
       notifyListeners();
     } on ApiClientException catch (e) {
-      _handleApiClientException(e);
+      if (context.mounted) _handleApiClientException(e, context);
     }
   }
 
-  Future<void> toggleFavorite() async {
+  Future<void> toggleFavorite(BuildContext context) async {
     final sessionId = await _sessionDataProvider.getSessionId();
     final accountId = await _sessionDataProvider.getAccountId();
 
@@ -69,14 +71,16 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
         isFavorite: _isFavorite,
       );
     } on ApiClientException catch (e) {
-      _handleApiClientException(e);
+      if (context.mounted) _handleApiClientException(e, context);
     }
   }
 
-  void _handleApiClientException(ApiClientException exception) {
+  void _handleApiClientException(
+      ApiClientException exception, BuildContext context) {
     switch (exception.type) {
       case ApiClientExceptionType.sessionExpired:
-        onSessionExpired?.call();
+        _authService.logout();
+        MainNavigation.resetNavigation(context);
         break;
       default:
         print(exception);
