@@ -47,11 +47,11 @@ class _DescriptionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final overview = context.select(
-      (MovieDetailsWidgetModel model) => model.movieDetails?.overview,
+      (MovieDetailsWidgetModel model) => model.data.overview,
     );
 
     return Text(
-      overview ?? '',
+      overview,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.start,
@@ -90,34 +90,34 @@ class _TopPostersWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.read<MovieDetailsWidgetModel>();
-    final movieDetails = context.select(
-      (MovieDetailsWidgetModel model) => model.movieDetails,
+    final posterData = context.select(
+      (MovieDetailsWidgetModel model) => model.data.posterData,
     );
-    final backdropPath = movieDetails?.backdropPath;
-    final posterPath = movieDetails?.posterPath;
+    final backdropPath = posterData.backdropPath;
+    final posterPath = posterData.posterPath;
 
     return AspectRatio(
       aspectRatio: 390 / 219,
       child: Stack(
         children: [
-          backdropPath != null
-              ? Image.network(ImageDownloader.imageUrl(backdropPath))
-              : const SizedBox.shrink(),
-          Positioned(
-            top: 20,
-            left: 20,
-            bottom: 20,
-            child: posterPath != null
-                ? Image.network(ImageDownloader.imageUrl(posterPath))
-                : const SizedBox.shrink(),
-          ),
+          if (backdropPath != null)
+            Image.network(ImageDownloader.imageUrl(backdropPath)),
+          if (posterPath != null)
+            Positioned(
+              top: 20,
+              left: 20,
+              bottom: 20,
+              child: Image.network(
+                ImageDownloader.imageUrl(posterPath),
+              ),
+            ),
           Positioned(
             top: 5,
             right: 5,
             child: IconButton(
               onPressed: () => model.toggleFavorite(context),
               icon: Icon(
-                model.isFavorite == true ? Icons.star : Icons.star_border,
+                posterData.favoriteIcon,
                 color: Colors.amber,
               ),
             ),
@@ -133,10 +133,9 @@ class _MovieNameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final movieDetails = context.select(
-      (MovieDetailsWidgetModel model) => model.movieDetails,
+    final titleData = context.select(
+      (MovieDetailsWidgetModel model) => model.data.titleData,
     );
-    final year = movieDetails?.releaseDate?.year.toString();
 
     return Center(
       child: RichText(
@@ -145,14 +144,14 @@ class _MovieNameWidget extends StatelessWidget {
         text: TextSpan(
           children: [
             TextSpan(
-              text: movieDetails?.title ?? '',
+              text: titleData.title,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
             ),
             TextSpan(
-              text: year != null ? ' ($year)' : '',
+              text: titleData.year,
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w400,
