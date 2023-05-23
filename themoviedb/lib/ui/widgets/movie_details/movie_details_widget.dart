@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_main_screen_cast_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_main_info_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
-import 'package:themoviedb/Library/Widgets/Inherited/provider.dart';
 
 class MovieDetailsWidget extends StatefulWidget {
   const MovieDetailsWidget({
@@ -18,9 +19,7 @@ class _MovieDetailsWidgetState extends State<MovieDetailsWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    NotifierProvider.read<MovieDetailsWidgetModel>(context)
-        ?.setupLocale(context);
+    context.read<MovieDetailsWidgetModel>().setupLocale(context);
   }
 
   @override
@@ -43,8 +42,10 @@ class _TitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.watch<MovieDetailsWidgetModel>(context);
-    return Text(model?.movieDetails?.title ?? 'Загрузка...');
+    final title = context.select(
+      (MovieDetailsWidgetModel model) => model.movieDetails?.title,
+    );
+    return Text(title ?? 'Загрузка...');
   }
 }
 
@@ -53,8 +54,10 @@ class _BodyWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = NotifierProvider.watch<MovieDetailsWidgetModel>(context);
-    final movieDetails = model?.movieDetails;
+    final movieDetails = context.select(
+      (MovieDetailsWidgetModel model) => model.movieDetails,
+    );
+
     if (movieDetails == null) {
       return const Center(child: CircularProgressIndicator());
     }
