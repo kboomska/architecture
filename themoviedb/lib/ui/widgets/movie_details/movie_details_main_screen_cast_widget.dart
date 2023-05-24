@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
@@ -54,15 +55,15 @@ class _ActorsListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cast = context.select(
-      (MovieDetailsWidgetModel model) => model.movieDetails?.credits.cast,
+    final actorsData = context.select(
+      (MovieDetailsWidgetModel model) => model.data.actorsData,
     );
 
-    if (cast == null || cast.isEmpty) return const SizedBox.shrink();
+    if (actorsData.isEmpty) return const SizedBox.shrink();
 
     return ListView.builder(
       scrollDirection: Axis.horizontal,
-      itemCount: 20,
+      itemCount: actorsData.length,
       itemExtent: 120,
       itemBuilder: (context, index) {
         return _ActorListItemWidget(
@@ -84,7 +85,7 @@ class _ActorListItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final model = context.read<MovieDetailsWidgetModel>();
-    final actor = model.movieDetails!.credits.cast[actorIndex];
+    final actor = model.data.actorsData[actorIndex];
     final profilePath = actor.profilePath;
 
     return Padding(
@@ -113,14 +114,13 @@ class _ActorListItemWidget extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              profilePath != null
-                  ? Image.network(
-                      ImageDownloader.imageUrl(profilePath),
-                      height: 120,
-                      width: 120,
-                      fit: BoxFit.fitWidth,
-                    )
-                  : const SizedBox.shrink(),
+              if (profilePath != null)
+                Image.network(
+                  ImageDownloader.imageUrl(profilePath),
+                  height: 120,
+                  width: 120,
+                  fit: BoxFit.fitWidth,
+                ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(

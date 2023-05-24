@@ -52,6 +52,18 @@ class MovieDetailsCrewData {
   });
 }
 
+class MovieDetailsActorData {
+  final String name;
+  final String character;
+  final String? profilePath;
+
+  MovieDetailsActorData({
+    required this.name,
+    required this.character,
+    this.profilePath,
+  });
+}
+
 class MovieDetailsData {
   String title = '';
   bool isLoading = true;
@@ -60,7 +72,9 @@ class MovieDetailsData {
   MovieDetailsTitleData titleData = MovieDetailsTitleData(title: '', year: '');
   MovieDetailsScoreData scoreData = MovieDetailsScoreData(voteAverage: 0);
   String summary = '';
-  List<List<MovieDetailsCrewData>> crewData = <List<MovieDetailsCrewData>>[];
+  List<List<MovieDetailsCrewData>> crewData =
+      const <List<MovieDetailsCrewData>>[];
+  List<MovieDetailsActorData> actorsData = const <MovieDetailsActorData>[];
 }
 
 class MovieDetailsWidgetModel extends ChangeNotifier {
@@ -132,6 +146,15 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     );
     data.summary = makeSummary(details);
     data.crewData = makeCrewData(details);
+    data.actorsData = details.credits.cast
+        .map(
+          (actor) => MovieDetailsActorData(
+            name: actor.name,
+            character: actor.character,
+            profilePath: actor.profilePath,
+          ),
+        )
+        .toList();
     notifyListeners();
   }
 
