@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
-import 'package:themoviedb/domain/api_client/account_api_client.dart';
-import 'package:themoviedb/domain/api_client/api_client_exception.dart';
-import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
-import 'package:themoviedb/domain/entity/movie_details.dart';
-import 'package:themoviedb/domain/services/auth_service.dart';
+import 'package:themoviedb/domain/api_client/api_client_exception.dart';
+import 'package:themoviedb/domain/api_client/account_api_client.dart';
+import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/services/auth_service.dart';
+import 'package:themoviedb/domain/entity/movie_details.dart';
 
 class MovieDetailsPosterData {
   final String? backdropPath;
@@ -32,12 +32,35 @@ class MovieDetailsTitleData {
   });
 }
 
+class MovieDetailsScoreData {
+  final String? trailerKey;
+  final double voteAverage;
+
+  MovieDetailsScoreData({
+    this.trailerKey,
+    required this.voteAverage,
+  });
+}
+
+class MovieDetailsCrewData {
+  final String name;
+  final String job;
+
+  MovieDetailsCrewData({
+    required this.name,
+    required this.job,
+  });
+}
+
 class MovieDetailsData {
   String title = '';
   bool isLoading = true;
   String overview = '';
   MovieDetailsPosterData posterData = MovieDetailsPosterData();
   MovieDetailsTitleData titleData = MovieDetailsTitleData(title: '', year: '');
+  MovieDetailsScoreData scoreData = MovieDetailsScoreData(voteAverage: 0);
+  String summary = '';
+  List<List<MovieDetailsCrewData>> crewData = <List<MovieDetailsCrewData>>[];
 }
 
 class MovieDetailsWidgetModel extends ChangeNotifier {
@@ -58,9 +81,6 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
   MovieDetails? get movieDetails => _movieDetails;
 
   bool get isFavorite => _isFavorite;
-
-  String stringFromDate(DateTime? date) =>
-      date != null ? _dateFormat.format(date) : '';
 
   Future<void> setupLocale(BuildContext context) async {
     final locale = Localizations.localeOf(context).toLanguageTag();
@@ -102,7 +122,64 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     var year = details.releaseDate?.year.toString();
     year = year != null ? ' ($year)' : '';
     data.titleData = MovieDetailsTitleData(title: details.title, year: year);
+    final videos = details.videos.results
+        .where((video) => video.type == 'Trailer' && video.site == 'YouTube')
+        .toList();
+    final trailerKey = videos.isNotEmpty == true ? videos.first.key : null;
+    data.scoreData = MovieDetailsScoreData(
+      voteAverage: details.voteAverage * 10,
+      trailerKey: trailerKey,
+    );
+    data.summary = makeSummary(details);
+    data.crewData = makeCrewData(details);
     notifyListeners();
+  }
+
+  List<List<MovieDetailsCrewData>> makeCrewData(MovieDetails details) {
+    var crew = details.credits.crew
+        .map(
+          (employee) => MovieDetailsCrewData(
+            name: employee.name,
+            job: employee.job,
+          ),
+        )
+        .toList();
+    crew = crew.length > 4 ? crew.sublist(0, 4) : crew;
+    var crewChunks = <List<MovieDetailsCrewData>>[];
+    for (var i = 0; i < crew.length; i += 2) {
+      crewChunks
+          .add(crew.sublist(i, i + 2 > crew.length ? crew.length : i + 2));
+    }
+    return crewChunks;
+  }
+
+  String makeSummary(MovieDetails details) {
+    var texts = <String>[];
+
+    final releaseDate = details.releaseDate;
+    if (releaseDate != null) {
+      texts.add(_dateFormat.format(releaseDate));
+    }
+
+    if (details.productionCountries.isNotEmpty) {
+      texts.add('(${details.productionCountries.first.iso})');
+    }
+
+    final runtime = details.runtime ?? 0;
+    final duration = Duration(minutes: runtime);
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes.remainder(60);
+    texts.add('${hours}h ${minutes}m');
+
+    if (details.genres.isNotEmpty) {
+      var genreNames = <String>[];
+      for (var genre in details.genres) {
+        genreNames.add(genre.name);
+      }
+      texts.add(genreNames.join(', '));
+    }
+    // '🅁 05/17/2019 (US) • 2h 11m • Action, Thriller, Crime',
+    return texts.join(' ');
   }
 
   Future<void> toggleFavorite(BuildContext context) async {
