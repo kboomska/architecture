@@ -13,13 +13,26 @@ import 'package:themoviedb/domain/entity/movie_details.dart';
 class MovieDetailsPosterData {
   final String? backdropPath;
   final String? posterPath;
-  final IconData favoriteIcon;
+  final bool isFavorite;
+  IconData get favoriteIcon => isFavorite ? Icons.star : Icons.star_border;
 
   MovieDetailsPosterData({
     this.backdropPath,
     this.posterPath,
-    this.favoriteIcon = Icons.star_border,
+    this.isFavorite = false,
   });
+
+  MovieDetailsPosterData copyWith({
+    String? backdropPath,
+    String? posterPath,
+    bool? isFavorite,
+  }) {
+    return MovieDetailsPosterData(
+      backdropPath: backdropPath ?? this.backdropPath,
+      posterPath: posterPath ?? this.posterPath,
+      isFavorite: isFavorite ?? this.isFavorite,
+    );
+  }
 }
 
 class MovieDetailsTitleData {
@@ -86,15 +99,9 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
   final int movieId;
   final data = MovieDetailsData();
   String _locale = '';
-  bool _isFavorite = false;
-  MovieDetails? _movieDetails;
   late DateFormat _dateFormat;
 
   MovieDetailsWidgetModel(this.movieId);
-
-  MovieDetails? get movieDetails => _movieDetails;
-
-  bool get isFavorite => _isFavorite;
 
   Future<void> setupLocale(BuildContext context) async {
     final locale = Localizations.localeOf(context).toLanguageTag();
@@ -109,11 +116,12 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
   Future<void> loadDetails(BuildContext context) async {
     try {
       final sessionId = await _sessionDataProvider.getSessionId();
-      _movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
+      final movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
+      var isFavorite = false;
       if (sessionId != null) {
-        _isFavorite = await _movieApiClient.isFavorite(movieId, sessionId);
+        isFavorite = await _movieApiClient.isFavorite(movieId, sessionId);
       }
-      updateData(_movieDetails, _isFavorite);
+      updateData(movieDetails, isFavorite);
     } on ApiClientException catch (e) {
       if (context.mounted) _handleApiClientException(e, context);
     }
@@ -127,11 +135,10 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
       return;
     }
     data.overview = details.overview ?? '';
-    final iconData = isFavorite ? Icons.star : Icons.star_border;
     data.posterData = MovieDetailsPosterData(
       backdropPath: details.backdropPath,
       posterPath: details.posterPath,
-      favoriteIcon: iconData,
+      isFavorite: isFavorite,
     );
     var year = details.releaseDate?.year.toString();
     year = year != null ? ' ($year)' : '';
@@ -211,8 +218,9 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
 
     if (sessionId == null || accountId == null) return;
 
-    _isFavorite = !_isFavorite;
-    updateData(_movieDetails, _isFavorite);
+    data.posterData =
+        data.posterData.copyWith(isFavorite: !data.posterData.isFavorite);
+    notifyListeners();
 
     try {
       await _accountApiClient.markAsFavorite(
@@ -220,7 +228,7 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
         sessionId: sessionId,
         mediaType: MediaType.movie,
         mediaId: movieId,
-        isFavorite: _isFavorite,
+        isFavorite: data.posterData.isFavorite,
       );
     } on ApiClientException catch (e) {
       if (context.mounted) _handleApiClientException(e, context);
