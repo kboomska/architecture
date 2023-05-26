@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
-import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/domain/api_client/api_client_exception.dart';
 import 'package:themoviedb/domain/api_client/account_api_client.dart';
-import 'package:themoviedb/domain/api_client/movie_api_client.dart';
+import 'package:themoviedb/domain/services/movie_service.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
@@ -91,10 +90,8 @@ class MovieDetailsData {
 }
 
 class MovieDetailsWidgetModel extends ChangeNotifier {
-  final _sessionDataProvider = SessionDataProvider();
-  final _accountApiClient = AccountApiClient();
-  final _movieApiClient = MovieApiClient();
   final _authService = AuthService();
+  final _movieService = MovieService();
 
   final int movieId;
   final data = MovieDetailsData();
@@ -111,20 +108,6 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     _dateFormat = DateFormat.yMMMMd(_locale);
     updateData(null, false);
     await loadDetails(context);
-  }
-
-  Future<void> loadDetails(BuildContext context) async {
-    try {
-      final sessionId = await _sessionDataProvider.getSessionId();
-      final movieDetails = await _movieApiClient.movieDetails(movieId, _locale);
-      var isFavorite = false;
-      if (sessionId != null) {
-        isFavorite = await _movieApiClient.isFavorite(movieId, sessionId);
-      }
-      updateData(movieDetails, isFavorite);
-    } on ApiClientException catch (e) {
-      if (context.mounted) _handleApiClientException(e, context);
-    }
   }
 
   void updateData(MovieDetails? details, bool isFavorite) {
@@ -212,22 +195,26 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     return texts.join(' ');
   }
 
+  Future<void> loadDetails(BuildContext context) async {
+    try {
+      final details = await _movieService.loadDetails(
+        movieId: movieId,
+        locale: _locale,
+      );
+
+      updateData(details.details, details.isFavorite);
+    } on ApiClientException catch (e) {
+      if (context.mounted) _handleApiClientException(e, context);
+    }
+  }
+
   Future<void> toggleFavorite(BuildContext context) async {
-    final sessionId = await _sessionDataProvider.getSessionId();
-    final accountId = await _sessionDataProvider.getAccountId();
-
-    if (sessionId == null || accountId == null) return;
-
     data.posterData =
         data.posterData.copyWith(isFavorite: !data.posterData.isFavorite);
     notifyListeners();
-
     try {
-      await _accountApiClient.markAsFavorite(
-        accountId: accountId,
-        sessionId: sessionId,
-        mediaType: MediaType.movie,
-        mediaId: movieId,
+      await _movieService.updateFavorite(
+        movieId: movieId,
         isFavorite: data.posterData.isFavorite,
       );
     } on ApiClientException catch (e) {
