@@ -22,22 +22,12 @@ class _ViewModel extends ChangeNotifier {
   _ViewModelState get state => _state;
 
   _ViewModel() {
-    loadValue();
-  }
-
-  Future<void> loadValue() async {
-    await _userService.initialize();
-    _updateState();
-  }
-
-  Future<void> onIncrementButtonPressed() async {
-    _userService.incrementAge();
-    _updateState();
-  }
-
-  Future<void> onDecrementButtonPressed() async {
-    _userService.decrementAge();
-    _updateState();
+    _userService.startListenUser((user) {
+      _state = _ViewModelState(
+        ageTitle: user.age.toString(),
+      );
+      notifyListeners();
+    });
   }
 
   Future<void> onLogoutButtonPressed(BuildContext context) async {
@@ -45,13 +35,10 @@ class _ViewModel extends ChangeNotifier {
     if (context.mounted) MainNavigation.showLoader(context);
   }
 
-  void _updateState() {
-    final user = _userService.user;
-
-    _state = _ViewModelState(
-      ageTitle: user.age.toString(),
-    );
-    notifyListeners();
+  @override
+  void dispose() {
+    _userService.stopListenUser();
+    super.dispose();
   }
 }
 
@@ -82,16 +69,9 @@ class ExampleWidget extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _AgeDecrementWidget(),
-              _AgeTitle(),
-              _AgeIncrementWidget(),
-            ],
-          ),
+          child: _AgeTitle(),
         ),
       ),
     );
@@ -112,34 +92,6 @@ class _AgeTitle extends StatelessWidget {
         title,
         textAlign: TextAlign.center,
       ),
-    );
-  }
-}
-
-class _AgeIncrementWidget extends StatelessWidget {
-  const _AgeIncrementWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = context.read<_ViewModel>();
-
-    return ElevatedButton(
-      onPressed: viewModel.onIncrementButtonPressed,
-      child: const Text('+'),
-    );
-  }
-}
-
-class _AgeDecrementWidget extends StatelessWidget {
-  const _AgeDecrementWidget({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = context.read<_ViewModel>();
-
-    return ElevatedButton(
-      onPressed: viewModel.onDecrementButtonPressed,
-      child: const Text('-'),
     );
   }
 }
