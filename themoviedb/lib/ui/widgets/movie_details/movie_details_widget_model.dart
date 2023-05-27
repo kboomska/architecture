@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:themoviedb/domain/api_client/api_client_exception.dart';
-import 'package:themoviedb/domain/api_client/account_api_client.dart';
-import 'package:themoviedb/domain/services/movie_service.dart';
+import 'package:themoviedb/Library/localization_model_storage.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/services/movie_service.dart';
 import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
 
@@ -95,17 +95,15 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
 
   final int movieId;
   final data = MovieDetailsData();
-  String _locale = '';
+  final _localeStorage = LocalizationModelStorage();
   late DateFormat _dateFormat;
 
   MovieDetailsWidgetModel(this.movieId);
 
-  Future<void> setupLocale(BuildContext context) async {
-    final locale = Localizations.localeOf(context).toLanguageTag();
+  Future<void> setupLocale(BuildContext context, Locale locale) async {
+    if (!_localeStorage.isLocaleUpdated(locale)) return;
 
-    if (_locale == locale) return;
-    _locale = locale;
-    _dateFormat = DateFormat.yMMMMd(_locale);
+    _dateFormat = DateFormat.yMMMMd(_localeStorage.localeTag);
     updateData(null, false);
     await loadDetails(context);
   }
@@ -199,7 +197,7 @@ class MovieDetailsWidgetModel extends ChangeNotifier {
     try {
       final details = await _movieService.loadDetails(
         movieId: movieId,
-        locale: _locale,
+        locale: _localeStorage.localeTag,
       );
 
       updateData(details.details, details.isFavorite);
