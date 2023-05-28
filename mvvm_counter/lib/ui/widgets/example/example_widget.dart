@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
@@ -5,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:mvvm_counter/ui/navigation/main_navigation.dart';
 import 'package:mvvm_counter/domain/services/auth_service.dart';
 import 'package:mvvm_counter/domain/services/user_service.dart';
+import 'package:mvvm_counter/domain/entity/user.dart';
 
 class _ViewModelState {
   final String ageTitle;
@@ -20,14 +23,19 @@ class _ViewModel extends ChangeNotifier {
 
   _ViewModelState _state = _ViewModelState(ageTitle: '');
   _ViewModelState get state => _state;
+  StreamSubscription<User>? userSubscription;
 
   _ViewModel() {
-    _userService.startListenUser((user) {
+    _state = _ViewModelState(
+      ageTitle: _userService.user.age.toString(),
+    );
+    userSubscription = _userService.userStream.listen((user) {
       _state = _ViewModelState(
-        ageTitle: user.age.toString(),
+        ageTitle: _userService.user.age.toString(),
       );
       notifyListeners();
     });
+    _userService.openConnect();
   }
 
   Future<void> onLogoutButtonPressed(BuildContext context) async {
@@ -37,7 +45,8 @@ class _ViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _userService.stopListenUser();
+    userSubscription?.cancel();
+    _userService.closeConnect();
     super.dispose();
   }
 }
