@@ -39,16 +39,17 @@ class UsersBloc {
     currentUser: User(0),
   );
 
-  final _stateController = StreamController<UsersState>();
+  final _stateController = StreamController<UsersState>.broadcast();
 
   UsersState get state => _state;
-  Stream<UsersState> get stream => _stateController.stream.asBroadcastStream();
+  Stream<UsersState> get stream => _stateController.stream;
 
   UsersBloc() {
     _initialize();
   }
 
   void updateState(UsersState state) {
+    if (_state == state) return;
     _state = state;
     _stateController.add(state);
   }

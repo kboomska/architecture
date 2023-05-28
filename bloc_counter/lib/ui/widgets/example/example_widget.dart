@@ -2,49 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:bloc_counter/domain/services/user_service.dart';
-
-class ViewModelState {
-  final String ageTitle;
-
-  ViewModelState({
-    required this.ageTitle,
-  });
-}
-
-class ViewModel extends ChangeNotifier {
-  final _userService = UserService();
-  ViewModelState _state = ViewModelState(ageTitle: '');
-  ViewModelState get state => _state;
-
-  ViewModel() {
-    loadValue();
-  }
-
-  Future<void> loadValue() async {
-    await _userService.initialize();
-    _updateState();
-  }
-
-  Future<void> onIncrementButtonPressed() async {
-    _userService.incrementAge();
-    _updateState();
-  }
-
-  Future<void> onDecrementButtonPressed() async {
-    _userService.decrementAge();
-    _updateState();
-  }
-
-  void _updateState() {
-    final user = _userService.user;
-
-    _state = ViewModelState(
-      ageTitle: user.age.toString(),
-    );
-    notifyListeners();
-  }
-}
+import 'package:bloc_counter/domain/blocs/users_bloc.dart';
 
 class ExampleWidget extends StatelessWidget {
   const ExampleWidget({super.key});
@@ -73,15 +31,17 @@ class _AgeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title =
-        context.select((ViewModel viewModel) => viewModel.state.ageTitle);
-
-    return SizedBox(
-      width: 60,
-      child: Text(
-        title,
-        textAlign: TextAlign.center,
-      ),
+    final bloc = context.read<UsersBloc>();
+    return StreamBuilder<UsersState>(
+      initialData: bloc.state,
+      stream: bloc.stream,
+      builder: (context, snapshot) {
+        final age = snapshot.requireData.currentUser.age.toString();
+        return Text(
+          age,
+          textAlign: TextAlign.center,
+        );
+      },
     );
   }
 }
@@ -91,10 +51,10 @@ class _AgeIncrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<ViewModel>();
+    final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: viewModel.onIncrementButtonPressed,
+      onPressed: bloc.incrementAge,
       child: const Text('+'),
     );
   }
@@ -105,10 +65,10 @@ class _AgeDecrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.read<ViewModel>();
+    final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: viewModel.onDecrementButtonPressed,
+      onPressed: bloc.decrementAge,
       child: const Text('-'),
     );
   }
