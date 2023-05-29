@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:bloc_counter/domain/blocs/users_bloc.dart';
 
@@ -31,12 +31,9 @@ class _AgeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<UsersBloc>();
-    return StreamBuilder<UsersState>(
-      initialData: bloc.state,
-      stream: bloc.stream,
-      builder: (context, snapshot) {
-        final age = snapshot.requireData.currentUser.age.toString();
+    return BlocBuilder<UsersBloc, UsersState>(
+      builder: (context, state) {
+        final age = state.currentUser.age.toString();
         return Text(
           age,
           textAlign: TextAlign.center,
