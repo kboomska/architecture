@@ -9,16 +9,24 @@ class ExampleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _AgeDecrementWidget(),
-              _AgeTitle(),
-              _AgeIncrementWidget(),
-            ],
+    return BlocListener<UsersBloc, UsersState>(
+      listenWhen: (previous, current) {
+        return true;
+      },
+      listener: (context, state) {
+        print(state.currentUser.age);
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: const [
+                _AgeDecrementWidget(),
+                _AgeTitle(),
+                _AgeIncrementWidget(),
+              ],
+            ),
           ),
         ),
       ),
@@ -38,19 +46,6 @@ class _AgeTitle extends StatelessWidget {
       age,
       textAlign: TextAlign.center,
     );
-
-    // return BlocBuilder<UsersBloc, UsersState>(
-    //   buildWhen: (previous, current) {
-    //     return previous.currentUser.age < current.currentUser.age;
-    //   },
-    //   builder: (context, state) {
-    //     final age = state.currentUser.age.toString();
-    //     return Text(
-    //       age,
-    //       textAlign: TextAlign.center,
-    //     );
-    //   },
-    // );
   }
 }
 
@@ -78,6 +73,20 @@ class _AgeDecrementWidget extends StatelessWidget {
     return ElevatedButton(
       onPressed: () => bloc.add(UsersDecrementEvent()),
       child: const Text('-'),
+    );
+  }
+}
+
+class ExampleForBlocConsumer extends StatelessWidget {
+  const ExampleForBlocConsumer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<UsersBloc, UsersState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        return Text(state.currentUser.age.toString());
+      },
     );
   }
 }
