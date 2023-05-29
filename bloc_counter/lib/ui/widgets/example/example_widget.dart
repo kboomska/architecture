@@ -31,15 +31,26 @@ class _AgeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<UsersBloc, UsersState>(
-      builder: (context, state) {
-        final age = state.currentUser.age.toString();
-        return Text(
-          age,
-          textAlign: TextAlign.center,
-        );
-      },
+    final age = context
+        .select((UsersBloc bloc) => bloc.state.currentUser.age)
+        .toString();
+    return Text(
+      age,
+      textAlign: TextAlign.center,
     );
+
+    // return BlocBuilder<UsersBloc, UsersState>(
+    //   buildWhen: (previous, current) {
+    //     return previous.currentUser.age < current.currentUser.age;
+    //   },
+    //   builder: (context, state) {
+    //     final age = state.currentUser.age.toString();
+    //     return Text(
+    //       age,
+    //       textAlign: TextAlign.center,
+    //     );
+    //   },
+    // );
   }
 }
 
