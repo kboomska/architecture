@@ -33,59 +33,43 @@ class UsersState {
   int get hashCode => currentUser.hashCode;
 }
 
-abstract class UsersEvents {}
-
-class UsersIncrementEvent implements UsersEvents {}
-
-class UsersDecrementEvent implements UsersEvents {}
-
-class UsersInitializeEvent implements UsersEvents {}
-
 class UsersBloc {
   final _userDataProvider = UserDataProvider();
   var _state = UsersState(
     currentUser: User(0),
   );
 
-  final _eventController = StreamController<UsersEvents>.broadcast();
-  late final Stream<UsersState> _stateStream;
+  final _stateController = StreamController<UsersState>.broadcast();
 
   UsersState get state => _state;
-  Stream<UsersState> get stream => _stateStream;
+  Stream<UsersState> get stream => _stateController.stream;
 
   UsersBloc() {
-    _stateStream = _eventController.stream
-        .asyncExpand<UsersState>(_mapEventToState)
-        .asyncExpand<UsersState>(_updateState)
-        .asBroadcastStream();
-
-    dispatch(UsersInitializeEvent());
+    _initialize();
   }
 
-  void dispatch(UsersEvents event) {
-    _eventController.add(event);
-  }
-
-  Stream<UsersState> _updateState(UsersState state) async* {
+  void _updateState(UsersState state) {
     if (_state == state) return;
     _state = state;
-    yield state;
+    _stateController.add(state);
   }
 
-  Stream<UsersState> _mapEventToState(UsersEvents event) async* {
-    if (event is UsersInitializeEvent) {
-      final user = await _userDataProvider.loadValue();
-      yield UsersState(currentUser: user);
-    } else if (event is UsersIncrementEvent) {
-      var user = _state.currentUser;
-      user = user.copyWith(age: user.age + 1);
-      await _userDataProvider.saveValue(user);
-      yield UsersState(currentUser: user);
-    } else if (event is UsersDecrementEvent) {
-      var user = _state.currentUser;
-      user = user.copyWith(age: max(user.age - 1, 0));
-      await _userDataProvider.saveValue(user);
-      yield UsersState(currentUser: user);
-    }
+  Future<void> _initialize() async {
+    final user = await _userDataProvider.loadValue();
+    _updateState(_state.copyWith(currentUser: user));
+  }
+
+  void incrementAge() {
+    var user = _state.currentUser;
+    user = user.copyWith(age: user.age + 1);
+    _updateState(_state.copyWith(currentUser: user));
+    _userDataProvider.saveValue(user);
+  }
+
+  void decrementAge() {
+    var user = _state.currentUser;
+    user = user.copyWith(age: max(user.age - 1, 0));
+    _updateState(_state.copyWith(currentUser: user));
+    _userDataProvider.saveValue(user);
   }
 }

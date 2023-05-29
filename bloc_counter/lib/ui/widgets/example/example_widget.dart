@@ -54,7 +54,7 @@ class _AgeIncrementWidget extends StatelessWidget {
     final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: () => bloc.dispatch(UsersIncrementEvent()),
+      onPressed: bloc.incrementAge,
       child: const Text('+'),
     );
   }
@@ -68,7 +68,7 @@ class _AgeDecrementWidget extends StatelessWidget {
     final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: () => bloc.dispatch(UsersDecrementEvent()),
+      onPressed: bloc.decrementAge,
       child: const Text('-'),
     );
   }
