@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Provider(
         create: (_) => UsersBloc(),
+        dispose: (context, value) => value.close(),
         child: const ExampleWidget(),
       ),
     );
