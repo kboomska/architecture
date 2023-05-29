@@ -66,5 +66,6 @@ class UsersBloc extends Bloc<UsersEvents, UsersState> {
       },
       transformer: sequential(),
     );
+    add(UsersInitializeEvent());
   }
 }
