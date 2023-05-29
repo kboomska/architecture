@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bloc_counter/ui/widgets/example/example_widget.dart';
-import 'package:bloc_counter/domain/blocs/users_cubit.dart';
+import 'package:bloc_counter/domain/blocs/users_bloc.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -14,8 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'MVVM Counter',
       debugShowCheckedModeBanner: false,
       home: Provider(
-        create: (_) => UsersCubit(),
-        dispose: (context, value) => value.close(),
+        create: (_) => UsersBloc(),
         child: const ExampleWidget(),
       ),
     );

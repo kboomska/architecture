@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:bloc_counter/domain/blocs/users_cubit.dart';
+import 'package:bloc_counter/domain/blocs/users_bloc.dart';
 
 class ExampleWidget extends StatelessWidget {
   const ExampleWidget({super.key});
@@ -31,10 +31,10 @@ class _AgeTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<UsersCubit>();
+    final bloc = context.read<UsersBloc>();
     return StreamBuilder<UsersState>(
-      initialData: cubit.state,
-      stream: cubit.stream,
+      initialData: bloc.state,
+      stream: bloc.stream,
       builder: (context, snapshot) {
         final age = snapshot.requireData.currentUser.age.toString();
         return Text(
@@ -51,10 +51,10 @@ class _AgeIncrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<UsersCubit>();
+    final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: cubit.incrementAge,
+      onPressed: () => bloc.dispatch(UsersIncrementEvent()),
       child: const Text('+'),
     );
   }
@@ -65,10 +65,10 @@ class _AgeDecrementWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<UsersCubit>();
+    final bloc = context.read<UsersBloc>();
 
     return ElevatedButton(
-      onPressed: cubit.decrementAge,
+      onPressed: () => bloc.dispatch(UsersDecrementEvent()),
       child: const Text('-'),
     );
   }
