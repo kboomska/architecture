@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:bloc/bloc.dart';
 
 import 'package:bloc_counter/domain/data_providers/user_data_provider.dart';
@@ -46,27 +47,24 @@ class UsersBloc extends Bloc<UsersEvents, UsersState> {
   final _userDataProvider = UserDataProvider();
 
   UsersBloc() : super(UsersState(currentUser: User(0))) {
-    on<UsersInitializeEvent>(
+    on<UsersEvents>(
       (event, emit) async {
-        final user = await _userDataProvider.loadValue();
-        emit(UsersState(currentUser: user));
+        if (event is UsersInitializeEvent) {
+          final user = await _userDataProvider.loadValue();
+          emit(UsersState(currentUser: user));
+        } else if (event is UsersIncrementEvent) {
+          var user = state.currentUser;
+          user = user.copyWith(age: user.age + 1);
+          await _userDataProvider.saveValue(user);
+          emit(UsersState(currentUser: user));
+        } else if (event is UsersDecrementEvent) {
+          var user = state.currentUser;
+          user = user.copyWith(age: max(user.age - 1, 0));
+          await _userDataProvider.saveValue(user);
+          emit(UsersState(currentUser: user));
+        }
       },
-    );
-    on<UsersIncrementEvent>(
-      (event, emit) async {
-        var user = state.currentUser;
-        user = user.copyWith(age: user.age + 1);
-        await _userDataProvider.saveValue(user);
-        emit(UsersState(currentUser: user));
-      },
-    );
-    on<UsersDecrementEvent>(
-      (event, emit) async {
-        var user = state.currentUser;
-        user = user.copyWith(age: max(user.age - 1, 0));
-        await _userDataProvider.saveValue(user);
-        emit(UsersState(currentUser: user));
-      },
+      transformer: sequential(),
     );
   }
 }
