@@ -72,4 +72,8 @@ class UsersBloc {
     _updateState(_state.copyWith(currentUser: user));
     _userDataProvider.saveValue(user);
   }
+
+  void close() {
+    _stateController.close();
+  }
 }
