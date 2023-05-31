@@ -13,7 +13,10 @@ enum LoaderViewCubitState { authorized, notAuthorized, unknown }
 class LoaderViewCubit extends Cubit<LoaderViewCubitState> {
   final AuthBloc authBloc;
   late final StreamSubscription<AuthState> authSubscription;
-  LoaderViewCubit(this.authBloc) : super(LoaderViewCubitState.unknown) {
+  LoaderViewCubit(
+    LoaderViewCubitState initialState,
+    this.authBloc,
+  ) : super(initialState) {
     authBloc.add(AuthCheckStatusEvent());
     onState(authBloc.state);
     authSubscription = authBloc.stream.listen(onState);
@@ -31,29 +34,5 @@ class LoaderViewCubit extends Cubit<LoaderViewCubitState> {
   Future<void> close() {
     authSubscription.cancel();
     return super.close();
-  }
-}
-
-class LoaderViewModel {
-  final BuildContext context;
-  final _authService = AuthService();
-
-  LoaderViewModel(this.context) {
-    asyncInit();
-  }
-
-  Future<void> asyncInit() async {
-    await chechAuth();
-  }
-
-  Future<void> chechAuth() async {
-    final isAuth = await _authService.isAuth();
-    final nextScreen = isAuth
-        ? MainNavigationRouteNames.mainScreen
-        : MainNavigationRouteNames.auth;
-
-    if (context.mounted) {
-      Navigator.of(context).pushReplacementNamed(nextScreen);
-    }
   }
 }

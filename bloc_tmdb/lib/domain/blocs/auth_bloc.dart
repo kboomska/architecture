@@ -86,15 +86,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _accountApiClient = AccountApiClient();
   final _authApiClient = AuthApiClient();
 
-  AuthBloc() : super(AuthNotAuthorizedState()) {
+  AuthBloc(AuthState initialState) : super(initialState) {
     on<AuthEvent>(
       (event, emit) async {
         if (event is AuthCheckStatusEvent) {
-          onAuthCheckStatusEvent(event, emit);
+          await onAuthCheckStatusEvent(event, emit);
         } else if (event is AuthLoginEvent) {
-          onAuthLoginEvent(event, emit);
+          await onAuthLoginEvent(event, emit);
         } else if (event is AuthLogoutEvent) {
-          onAuthLogoutEvent(event, emit);
+          await onAuthLogoutEvent(event, emit);
         }
       },
       transformer: sequential(),
@@ -103,7 +103,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     add(AuthCheckStatusEvent());
   }
 
-  void onAuthCheckStatusEvent(
+  Future<void> onAuthCheckStatusEvent(
     AuthCheckStatusEvent event,
     Emitter<AuthState> emit,
   ) async {
@@ -113,7 +113,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(newState);
   }
 
-  void onAuthLoginEvent(
+  Future<void> onAuthLoginEvent(
     AuthLoginEvent event,
     Emitter<AuthState> emit,
   ) async {
@@ -132,7 +132,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void onAuthLogoutEvent(
+  Future<void> onAuthLogoutEvent(
     AuthLogoutEvent event,
     Emitter<AuthState> emit,
   ) async {
