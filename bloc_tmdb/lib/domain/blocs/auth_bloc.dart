@@ -61,7 +61,25 @@ class AuthFailureState extends AuthState {
   int get hashCode => error.hashCode;
 }
 
-class AuthInProgressState extends AuthState {}
+class AuthInProgressState extends AuthState {
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthInProgressState && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => 0;
+}
+
+class AuthCheckInProgressState extends AuthState {
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AuthCheckInProgressState && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => 0;
+}
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final _sessionDataProvider = SessionDataProvider();
