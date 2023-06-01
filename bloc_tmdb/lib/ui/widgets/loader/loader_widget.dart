@@ -13,7 +13,7 @@ class LoaderWidget extends StatelessWidget {
     return BlocListener<LoaderViewCubit, LoaderViewCubitState>(
       listenWhen: (previous, current) =>
           current != LoaderViewCubitState.unknown,
-      listener: onLoaderViewCubitStateChange,
+      listener: _onLoaderViewCubitStateChange,
       child: const Scaffold(
         body: SafeArea(
           child: Center(
@@ -24,7 +24,7 @@ class LoaderWidget extends StatelessWidget {
     );
   }
 
-  void onLoaderViewCubitStateChange(
+  void _onLoaderViewCubitStateChange(
       BuildContext context, LoaderViewCubitState state) {
     final nextScreen = state == LoaderViewCubitState.authorized
         ? MainNavigationRouteNames.mainScreen

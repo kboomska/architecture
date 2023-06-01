@@ -1,26 +1,49 @@
+import 'package:bloc_tmdb/ui/navigation/main_navigation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 import 'package:bloc_tmdb/ui/widgets/auth/auth_view_cubit.dart';
 import 'package:bloc_tmdb/ui/theme/app_button_style.dart';
+
+class _AuthDataStorage {
+  String login = '';
+  String password = '';
+}
 
 class AuthWidget extends StatelessWidget {
   const AuthWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login to your account'),
-        centerTitle: true,
-      ),
-      body: ListView(
-        children: const [
-          _HeaderWidget(),
-        ],
+    return BlocListener<AuthViewCubit, AuthViewCubitState>(
+      listenWhen: (_, current) => current is AuthViewCubitSuccessAuthState,
+      listener: _onAuthViewCubitStateChange,
+      child: Provider(
+        create: (_) => _AuthDataStorage(),
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('Login to your account'),
+            centerTitle: true,
+          ),
+          body: ListView(
+            children: const [
+              _HeaderWidget(),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  void _onAuthViewCubitStateChange(
+      BuildContext context, AuthViewCubitState state) {
+    if (state is AuthViewCubitSuccessAuthState) {
+      if (context.mounted) {
+        MainNavigation.resetNavigation(context);
+      }
+    }
   }
 }
 
@@ -88,7 +111,7 @@ class _FormWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<AuthViewModel>();
+    final authDataStorage = context.read<_AuthDataStorage>();
 
     const textStyle = TextStyle(
       fontSize: 16,
@@ -116,7 +139,7 @@ class _FormWidget extends StatelessWidget {
           height: 5,
         ),
         TextField(
-          controller: model.loginTextController,
+          onChanged: (text) => authDataStorage.login = text,
           decoration: inputDecoration,
         ),
         const SizedBox(
@@ -130,7 +153,7 @@ class _FormWidget extends StatelessWidget {
           height: 5,
         ),
         TextField(
-          controller: model.passwordTextController,
+          onChanged: (text) => authDataStorage.password = text,
           decoration: inputDecoration,
           obscureText: true,
         ),
@@ -163,10 +186,17 @@ class _AuthButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const textFieldColor = Color(0xFF01B4E4);
-    final model = context.watch<AuthViewModel>();
-
-    final onPressed = model.canStartAuth ? () => model.auth(context) : null;
-    final child = model.isAuthProgress
+    final cubit = context.watch<AuthViewCubit>();
+    final authDataStorage = context.read<_AuthDataStorage>();
+    final canStartAuth = cubit.state is AuthViewCubitFormFillInProgressState ||
+        cubit.state is AuthViewCubitErrorState;
+    final onPressed = canStartAuth
+        ? () => cubit.auth(
+              login: authDataStorage.login,
+              password: authDataStorage.password,
+            )
+        : null;
+    final child = cubit.state is AuthViewCubitAuthProgressState
         ? const SizedBox(
             height: 15,
             width: 15,
@@ -197,8 +227,11 @@ class _ErrorMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final errorMessage =
-        context.select((AuthViewModel model) => model.errorMessage);
+    final errorMessage = context.select((AuthViewCubit cubit) {
+      final state = cubit.state;
+      return state is AuthViewCubitErrorState ? state.errorMessage : null;
+    });
+
     if (errorMessage == null) return const SizedBox.shrink();
 
     return Padding(

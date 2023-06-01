@@ -24,8 +24,7 @@ class ScreenFactory {
     final authBloc = _authBloc ?? AuthBloc(AuthCheckInProgressState());
     _authBloc = authBloc;
     return BlocProvider<LoaderViewCubit>(
-      lazy: false,
-      create: (context) => LoaderViewCubit(
+      create: (_) => LoaderViewCubit(
         LoaderViewCubitState.unknown,
         authBloc,
       ),
@@ -34,8 +33,14 @@ class ScreenFactory {
   }
 
   Widget makeAuth() {
-    return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
+    final authBloc = _authBloc ?? AuthBloc(AuthCheckInProgressState());
+    _authBloc = authBloc;
+
+    return BlocProvider<AuthViewCubit>(
+      create: (_) => AuthViewCubit(
+        AuthViewCubitFormFillInProgressState(),
+        authBloc,
+      ),
       child: const AuthWidget(),
     );
   }

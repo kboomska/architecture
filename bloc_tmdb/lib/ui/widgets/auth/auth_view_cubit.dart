@@ -1,12 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:bloc/bloc.dart';
 
 import 'package:bloc_tmdb/domain/api_client/api_client_exception.dart';
-import 'package:bloc_tmdb/ui/navigation/main_navigation.dart';
-import 'package:bloc_tmdb/domain/services/auth_service.dart';
 import 'package:bloc_tmdb/domain/blocs/auth_bloc.dart';
 
 abstract class AuthViewCubitState {}
@@ -62,14 +58,14 @@ class AuthViewCubitSuccessAuthState extends AuthViewCubitState {
 
 class AuthViewCubit extends Cubit<AuthViewCubitState> {
   final AuthBloc authBloc;
-  late final StreamSubscription<AuthState> authSubscription;
+  late final StreamSubscription<AuthState> authBlocSubscription;
 
   AuthViewCubit(
     super.initialState,
     this.authBloc,
   ) {
     _onState(authBloc.state);
-    authSubscription = authBloc.stream.listen(_onState);
+    authBlocSubscription = authBloc.stream.listen(_onState);
   }
 
   bool _isValid(String login, String password) =>
@@ -89,6 +85,7 @@ class AuthViewCubit extends Cubit<AuthViewCubitState> {
     if (state is AuthNotAuthorizedState) {
       emit(AuthViewCubitFormFillInProgressState());
     } else if (state is AuthAuthorizedState) {
+      authBlocSubscription.cancel();
       emit(AuthViewCubitSuccessAuthState());
     } else if (state is AuthFailureState) {
       final message = _mapErrorToMessage(state.error);
@@ -117,74 +114,7 @@ class AuthViewCubit extends Cubit<AuthViewCubitState> {
 
   @override
   Future<void> close() {
-    authSubscription.cancel();
+    authBlocSubscription.cancel();
     return super.close();
-  }
-}
-
-class AuthViewModel extends ChangeNotifier {
-  final _authService = AuthService();
-
-  final loginTextController = TextEditingController();
-  final passwordTextController = TextEditingController();
-
-  String? _errorMessage;
-  String? get errorMessage => _errorMessage;
-
-  bool _isAuthProgress = false;
-  bool get canStartAuth => !_isAuthProgress;
-  bool get isAuthProgress => _isAuthProgress;
-
-  bool _isValid(String login, String password) =>
-      login.isNotEmpty && password.isNotEmpty;
-
-  Future<String?> _login(String login, String password) async {
-    try {
-      await _authService.login(login, password);
-    } on ApiClientException catch (e) {
-      switch (e.type) {
-        case ApiClientExceptionType.network:
-          return 'Сервер не доступен. Проверьте подключение к сети интернет';
-        case ApiClientExceptionType.auth:
-          return 'Неправильныый логин или пароль!';
-        case ApiClientExceptionType.other:
-          return 'Произошла ошибка. Попробуйте еще раз';
-        default:
-          break;
-      }
-    } catch (e) {
-      return 'Неизвестная ошибка, повторите попытку';
-    }
-    return null;
-  }
-
-  Future<void> auth(BuildContext context) async {
-    final login = loginTextController.text;
-    final password = passwordTextController.text;
-
-    if (!_isValid(login, password)) {
-      _updateState('Заполните логин и пароль', false);
-      return;
-    }
-
-    _updateState(null, true);
-
-    _errorMessage = await _login(login, password);
-    if (_errorMessage == null) {
-      if (context.mounted) {
-        MainNavigation.resetNavigation(context);
-      }
-    } else {
-      _updateState(_errorMessage, false);
-    }
-  }
-
-  void _updateState(String? errorMessage, bool isAuthProgress) {
-    if (_errorMessage == errorMessage && _isAuthProgress == isAuthProgress) {
-      return;
-    }
-    _errorMessage = errorMessage;
-    _isAuthProgress = isAuthProgress;
-    notifyListeners();
   }
 }
