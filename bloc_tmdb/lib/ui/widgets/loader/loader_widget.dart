@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:bloc_tmdb/ui/widgets/loader/loader_view_model.dart';
+import 'package:bloc_tmdb/ui/widgets/loader/loader_view_cubit.dart';
 import 'package:bloc_tmdb/ui/navigation/main_navigation.dart';
 
 class LoaderWidget extends StatelessWidget {

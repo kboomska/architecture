@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:bloc_tmdb/ui/widgets/auth/auth_view_model.dart';
+import 'package:bloc_tmdb/ui/widgets/auth/auth_view_cubit.dart';
 import 'package:bloc_tmdb/ui/theme/app_button_style.dart';
 
 class AuthWidget extends StatelessWidget {

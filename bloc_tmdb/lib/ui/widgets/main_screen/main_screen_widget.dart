@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:bloc_tmdb/domain/factories/screen_factory.dart';
+import 'package:bloc_tmdb/domain/services/auth_service.dart';
 
 class MainScreenWidget extends StatefulWidget {
   const MainScreenWidget({super.key});
@@ -28,7 +29,9 @@ class _MainScreenWidgetState extends State<MainScreenWidget> {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              AuthService().logout();
+            },
             icon: const Icon(Icons.logout),
           ),
         ],
