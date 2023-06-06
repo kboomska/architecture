@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Dependency Injection',
       debugShowCheckedModeBanner: false,
-      home: ExampleWidget(),
+      home: ExampleWidget(mode: ExampleWidgetMode.pet),
     );
   }
 }
