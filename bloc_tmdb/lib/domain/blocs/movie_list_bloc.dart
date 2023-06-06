@@ -74,6 +74,8 @@ class MovieListState {
   final String searchQuery;
 
   bool get isSearchMode => searchQuery.isNotEmpty;
+  List<Movie> get movies =>
+      isSearchMode ? searchMovieContainer.movies : popularMovieContainer.movies;
 
   MovieListState({
     required this.popularMovieContainer,
