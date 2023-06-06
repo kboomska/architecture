@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 
-import 'package:bloc_tmdb/ui/widgets/movie_list/movie_list_view_model.dart';
+import 'package:bloc_tmdb/ui/widgets/movie_list/movie_list_cubit.dart';
 import 'package:bloc_tmdb/domain/api_client/image_downloader.dart';
+import 'package:bloc_tmdb/ui/navigation/main_navigation.dart';
 
 class MovieListWidget extends StatefulWidget {
   const MovieListWidget({super.key});
@@ -17,7 +18,7 @@ class _MovieListWidgetState extends State<MovieListWidget> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final locale = Localizations.localeOf(context);
-    context.read<MovieListViewModel>().setupLocale(locale);
+    context.read<MovieListCubit>().setupLocale(locale.toLanguageTag());
   }
 
   @override
@@ -38,12 +39,12 @@ class _SearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<MovieListViewModel>();
+    final cubit = context.read<MovieListCubit>();
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextField(
-        onChanged: model.searchMovie,
+        onChanged: cubit.searchMovie,
         decoration: InputDecoration(
           labelText: 'Поиск',
           filled: true,
@@ -62,15 +63,15 @@ class _MovieListWidgetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.watch<MovieListViewModel>();
+    final cubit = context.watch<MovieListCubit>();
 
     return ListView.builder(
       padding: const EdgeInsets.only(top: 66),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      itemCount: model.movies.length,
+      itemCount: cubit.state.movies.length,
       itemExtent: 163,
       itemBuilder: (context, index) {
-        model.showedMovieAtIndex(index);
+        cubit.showedMovieAtIndex(index);
         return _MovieListRowWidget(index: index);
       },
     );
@@ -87,8 +88,8 @@ class _MovieListRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model = context.read<MovieListViewModel>();
-    final movie = model.movies[index];
+    final cubit = context.read<MovieListCubit>();
+    final movie = cubit.state.movies[index];
     final posterPath = movie.posterPath;
 
     return Padding(
@@ -171,11 +172,18 @@ class _MovieListRowWidget extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(10),
-              onTap: () => model.onMovieTap(context, index),
+              onTap: () => _onMovieTap(context, movie.id),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _onMovieTap(BuildContext context, int movieId) {
+    Navigator.of(context).pushNamed(
+      MainNavigationRouteNames.movieDetails,
+      arguments: movieId,
     );
   }
 }

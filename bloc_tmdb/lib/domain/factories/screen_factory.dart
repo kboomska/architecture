@@ -7,12 +7,13 @@ import 'package:bloc_tmdb/ui/widgets/movie_details/movie_details_widget_model.da
 import 'package:bloc_tmdb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
 import 'package:bloc_tmdb/ui/widgets/movie_details/movie_details_widget.dart';
 import 'package:bloc_tmdb/ui/widgets/tv_show_list/tv_show_list_widget.dart';
-import 'package:bloc_tmdb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:bloc_tmdb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:bloc_tmdb/ui/widgets/movie_list/movie_list_widget.dart';
+import 'package:bloc_tmdb/ui/widgets/movie_list/movie_list_cubit.dart';
 import 'package:bloc_tmdb/ui/widgets/loader/loader_view_cubit.dart';
 import 'package:bloc_tmdb/ui/widgets/auth/auth_view_cubit.dart';
 import 'package:bloc_tmdb/ui/widgets/loader/loader_widget.dart';
+import 'package:bloc_tmdb/domain/blocs/movie_list_bloc.dart';
 import 'package:bloc_tmdb/ui/widgets/auth/auth_widget.dart';
 import 'package:bloc_tmdb/ui/widgets/news/news_widget.dart';
 import 'package:bloc_tmdb/domain/blocs/auth_bloc.dart';
@@ -67,8 +68,12 @@ class ScreenFactory {
   }
 
   Widget makeMovieList() {
-    return ChangeNotifierProvider(
-      create: (_) => MovieListViewModel(),
+    return BlocProvider<MovieListCubit>(
+      create: (_) => MovieListCubit(
+        movieListBloc: MovieListBloc(
+          const MovieListState.initial(),
+        ),
+      ),
       child: const MovieListWidget(),
     );
   }
