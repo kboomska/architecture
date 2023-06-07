@@ -1,11 +1,9 @@
-import 'package:dependency_injection/widgets/example/summator.dart';
+import 'package:dependency_injection/factories/service_locator.dart';
 
 enum CalculatorServiceOperation { sum }
 
 class CalculatorService {
-  final Summator summator;
-
-  const CalculatorService(this.summator);
+  final summator = ServiceLocator.instance.makeSummator();
 
   int calculate(int a, int b, CalculatorServiceOperation operation) {
     if (operation == CalculatorServiceOperation.sum) {
