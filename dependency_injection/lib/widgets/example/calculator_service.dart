@@ -3,9 +3,9 @@ import 'package:dependency_injection/widgets/example/summator.dart';
 enum CalculatorServiceOperation { sum }
 
 class CalculatorService {
-  final summator = const Summator();
+  final Summator summator;
 
-  const CalculatorService();
+  const CalculatorService(this.summator);
 
   int calculate(int a, int b, CalculatorServiceOperation operation) {
     if (operation == CalculatorServiceOperation.sum) {

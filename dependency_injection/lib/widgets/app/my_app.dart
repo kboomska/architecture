@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/widgets/example/example_view_model.dart';
-import 'package:dependency_injection/widgets/example/example_widget.dart';
-
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Widget widget;
+  const MyApp({super.key, required this.widget});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Dependency Injection',
       debugShowCheckedModeBanner: false,
-      home: ExampleWidget(model: ExampleCalcViewModel()),
+      home: widget,
     );
   }
 }

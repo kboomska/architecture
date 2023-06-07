@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/widgets/app/my_app.dart';
+import 'package:dependency_injection/factories/di_container.dart';
+
+abstract class MainDIContainer {
+  Widget makeApp();
+}
+
+final diContainer = makeDIContainer();
 
 void main() {
-  const app = MyApp();
+  final app = diContainer.makeApp();
   runApp(app);
 }
