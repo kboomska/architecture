@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:dependency_injection/widgets/example/example_view_model.dart';
 import 'package:dependency_injection/widgets/example/example_widget.dart';
 
 class MyApp extends StatelessWidget {
@@ -10,7 +11,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: 'Dependency Injection',
       debugShowCheckedModeBanner: false,
-      home: ExampleWidget(mode: ExampleWidgetMode.pet),
+      home: ExampleWidget(model: ExampleCalcViewModel()),
     );
   }
 }

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/widgets/example/example_view_model.dart';
-
-enum ExampleWidgetMode { calc, pet }
+abstract class ExampleViewModel {
+  void onPress();
+  void onPressMeToo();
+}
 
 class ExampleWidget extends StatelessWidget {
-  final ExampleWidgetMode mode;
-  final calcModel = const ExampleCalcViewModel();
-  final petModel = const ExamplePetViewModel();
+  final ExampleViewModel model;
 
-  const ExampleWidget({super.key, required this.mode});
+  const ExampleWidget({super.key, required this.model});
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +19,11 @@ class ExampleWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: mode == ExampleWidgetMode.calc
-                    ? calcModel.onPress
-                    : petModel.onPress,
+                onPressed: model.onPress,
                 child: const Text('Press'),
               ),
               ElevatedButton(
-                onPressed: mode == ExampleWidgetMode.calc
-                    ? calcModel.onPressMeToo
-                    : petModel.onPressMeToo,
+                onPressed: model.onPressMeToo,
                 child: const Text('Press me too'),
               ),
             ],
