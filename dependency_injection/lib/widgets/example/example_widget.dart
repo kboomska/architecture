@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 
+import 'package:dependency_injection/widgets/example/example_view_model.dart';
+
 abstract class ExampleViewModel {
   void onPress();
   void onPressMeToo();
@@ -27,6 +29,15 @@ class ExampleWidget extends StatelessWidget {
               ElevatedButton(
                 onPressed: model.onPressMeToo,
                 child: const Text('Press me too'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  GetIt.instance.unregister<ExampleViewModel>();
+                  GetIt.instance.registerFactory<ExampleViewModel>(
+                    () => const ExamplePetViewModel(),
+                  );
+                },
+                child: const Text('Press me 3'),
               ),
             ],
           ),
