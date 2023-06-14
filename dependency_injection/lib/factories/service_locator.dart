@@ -15,17 +15,20 @@ void setupGetIt() {
   GetIt.instance.registerSingletonAsync<SharedPreferences>(
     SharedPreferences.getInstance,
   );
-  // GetIt.instance.registerLazySingleton<ScreenFactory>(
-  //   () => const ScreenFactoryDefault(),
-  // );
-  GetIt.instance.registerSingleton<ScreenFactory>(ScreenFactoryDefault());
-  GetIt.instance.registerSingleton<MainNavigation>(MainNavigationDefault());
+  GetIt.instance.registerSingletonWithDependencies<ScreenFactory>(
+    () => ScreenFactoryDefault(),
+    dependsOn: [SharedPreferences],
+  );
+  GetIt.instance.registerSingletonWithDependencies<MainNavigation>(
+    () => MainNavigationDefault(),
+    dependsOn: [ScreenFactory],
+  );
   GetIt.instance.registerFactory<Summator>(() => const Summator());
+  GetIt.instance.registerFactory<AppFactory>(() => const AppFactoryDefault());
   GetIt.instance.registerFactory<CalculatorService>(() => CalculatorService());
   GetIt.instance.registerFactory<ExampleViewModel>(
     () => ExampleCalcViewModel(),
   );
-  GetIt.instance.registerFactory<AppFactory>(() => const AppFactoryDefault());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -34,7 +37,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   }
 
   Future<void> _setup() async {
-    final storage = await GetIt.instance.getAsync<SharedPreferences>();
+    final storage = GetIt.instance<SharedPreferences>();
     storage.setBool('key', true);
   }
 

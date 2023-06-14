@@ -8,8 +8,10 @@ abstract class AppFactory {
   Widget makeApp();
 }
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   setupGetIt();
+  await GetIt.instance.allReady();
   final appFactory = GetIt.instance<AppFactory>();
   final app = appFactory.makeApp();
   runApp(app);
