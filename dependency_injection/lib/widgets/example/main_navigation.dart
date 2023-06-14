@@ -7,6 +7,10 @@ abstract class MainNavigationRouteNames {
   static const example = '/';
 }
 
+abstract class ScreenFactory {
+  Widget makeExampleScreen();
+}
+
 class MainNavigationDefault implements MainNavigation {
   @override
   Map<String, Widget Function(BuildContext)> makeRoutes() =>
