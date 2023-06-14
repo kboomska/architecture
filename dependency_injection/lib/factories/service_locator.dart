@@ -8,10 +8,17 @@ import 'package:dependency_injection/widgets/example/main_navigation.dart';
 import 'package:dependency_injection/widgets/example/example_widget.dart';
 import 'package:dependency_injection/widgets/example/summator.dart';
 import 'package:dependency_injection/widgets/app/my_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dependency_injection/main.dart';
 
 void setupGetIt() {
-  GetIt.instance.registerSingleton<ScreenFactory>(const ScreenFactoryDefault());
+  GetIt.instance.registerSingletonAsync<SharedPreferences>(
+    SharedPreferences.getInstance,
+  );
+  // GetIt.instance.registerLazySingleton<ScreenFactory>(
+  //   () => const ScreenFactoryDefault(),
+  // );
+  GetIt.instance.registerSingleton<ScreenFactory>(ScreenFactoryDefault());
   GetIt.instance.registerSingleton<MainNavigation>(MainNavigationDefault());
   GetIt.instance.registerFactory<Summator>(() => const Summator());
   GetIt.instance.registerFactory<CalculatorService>(() => CalculatorService());
@@ -21,25 +28,15 @@ void setupGetIt() {
   GetIt.instance.registerFactory<AppFactory>(() => const AppFactoryDefault());
 }
 
-// class ServiceLocator {
-//   static final instance = ServiceLocator._();
-//   ServiceLocator._();
-
-//   final MainNavigation mainNavigation = MainNavigationDefault();
-
-//   Summator makeSummator() => const Summator();
-
-//   CalculatorService makeCalculatorService() => CalculatorService();
-
-//   ExampleViewModel makeExampleViewModel() => ExampleCalcViewModel();
-
-//   Widget makeExampleScreen() => ExampleWidget();
-
-//   Widget makeApp() => MyApp();
-// }
-
 class ScreenFactoryDefault implements ScreenFactory {
-  const ScreenFactoryDefault();
+  ScreenFactoryDefault() {
+    _setup();
+  }
+
+  Future<void> _setup() async {
+    final storage = await GetIt.instance.getAsync<SharedPreferences>();
+    storage.setBool('key', true);
+  }
 
   @override
   Widget makeExampleScreen() => ExampleWidget();
