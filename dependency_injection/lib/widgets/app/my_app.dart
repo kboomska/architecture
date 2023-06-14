@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/factories/service_locator.dart';
+import 'package:get_it/get_it.dart';
 
 abstract class MainNavigation {
   Map<String, Widget Function(BuildContext)> makeRoutes();
@@ -8,7 +8,7 @@ abstract class MainNavigation {
 }
 
 class MyApp extends StatelessWidget {
-  final mainNavigation = ServiceLocator.instance.mainNavigation;
+  final mainNavigation = GetIt.instance<MainNavigation>();
 
   MyApp({super.key});
 

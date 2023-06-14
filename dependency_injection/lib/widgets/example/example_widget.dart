@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/factories/service_locator.dart';
+import 'package:get_it/get_it.dart';
 
 abstract class ExampleViewModel {
   void onPress();
@@ -8,7 +8,7 @@ abstract class ExampleViewModel {
 }
 
 class ExampleWidget extends StatelessWidget {
-  final model = ServiceLocator.instance.makeExampleViewModel();
+  final model = GetIt.instance<ExampleViewModel>();
 
   ExampleWidget({super.key});
 

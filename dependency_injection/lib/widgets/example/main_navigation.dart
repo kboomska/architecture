@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:dependency_injection/factories/service_locator.dart';
+import 'package:get_it/get_it.dart';
+
 import 'package:dependency_injection/widgets/app/my_app.dart';
 
 abstract class MainNavigationRouteNames {
@@ -12,11 +13,13 @@ abstract class ScreenFactory {
 }
 
 class MainNavigationDefault implements MainNavigation {
+  final screenFactory = GetIt.instance<ScreenFactory>();
+
   @override
   Map<String, Widget Function(BuildContext)> makeRoutes() =>
       <String, Widget Function(BuildContext)>{
         MainNavigationRouteNames.example: (_) =>
-            ServiceLocator.instance.makeExampleScreen(),
+            screenFactory.makeExampleScreen(),
       };
 
   @override

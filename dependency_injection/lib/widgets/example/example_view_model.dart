@@ -1,9 +1,10 @@
+import 'package:get_it/get_it.dart';
+
 import 'package:dependency_injection/widgets/example/calculator_service.dart';
 import 'package:dependency_injection/widgets/example/example_widget.dart';
-import 'package:dependency_injection/factories/service_locator.dart';
 
 class ExampleCalcViewModel implements ExampleViewModel {
-  final calculatorService = ServiceLocator.instance.makeCalculatorService();
+  final calculatorService = GetIt.instance<CalculatorService>();
 
   @override
   void onPress() {

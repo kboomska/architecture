@@ -21,22 +21,22 @@ void setupGetIt() {
   GetIt.instance.registerFactory<AppFactory>(() => const AppFactoryDefault());
 }
 
-class ServiceLocator {
-  static final instance = ServiceLocator._();
-  ServiceLocator._();
+// class ServiceLocator {
+//   static final instance = ServiceLocator._();
+//   ServiceLocator._();
 
-  final MainNavigation mainNavigation = MainNavigationDefault();
+//   final MainNavigation mainNavigation = MainNavigationDefault();
 
-  Summator makeSummator() => const Summator();
+//   Summator makeSummator() => const Summator();
 
-  CalculatorService makeCalculatorService() => CalculatorService();
+//   CalculatorService makeCalculatorService() => CalculatorService();
 
-  ExampleViewModel makeExampleViewModel() => ExampleCalcViewModel();
+//   ExampleViewModel makeExampleViewModel() => ExampleCalcViewModel();
 
-  Widget makeExampleScreen() => ExampleWidget();
+//   Widget makeExampleScreen() => ExampleWidget();
 
-  Widget makeApp() => MyApp();
-}
+//   Widget makeApp() => MyApp();
+// }
 
 class ScreenFactoryDefault implements ScreenFactory {
   const ScreenFactoryDefault();
