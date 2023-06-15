@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:themoviedb/domain/services/auth_service.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
@@ -9,6 +10,7 @@ import 'package:themoviedb/ui/widgets/tv_show_list/tv_show_list_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_list/movie_list_widget.dart';
+import 'package:themoviedb/ui/navigation/main_navigation_actions.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_view_model.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
@@ -32,14 +34,25 @@ class _AppFactoryDefault implements AppFactory {
 }
 
 class _DIContainer {
+  final _mainNavigationActions = const MainNavigationActions();
+
   const _DIContainer();
 
-  ScreenFactory makeScreenFactory() => const ScreenFactoryDefault();
+  ScreenFactory makeScreenFactory() => _ScreenFactoryDefault(this);
   MyAppNavigation makeMyAppNavigation() => MainNavigation(makeScreenFactory());
+
+  AuthService makeAuthService() => AuthService();
+
+  AuthViewModel makeAuthViewModel() => AuthViewModel(
+        mainNavigationActions: _mainNavigationActions,
+        loginProvider: makeAuthService(),
+      );
 }
 
-class ScreenFactoryDefault implements ScreenFactory {
-  const ScreenFactoryDefault();
+class _ScreenFactoryDefault implements ScreenFactory {
+  final _DIContainer _diContainer;
+
+  const _ScreenFactoryDefault(this._diContainer);
 
   @override
   Widget makeLoader() {
@@ -53,7 +66,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeAuth() {
     return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
+      create: (_) => _diContainer.makeAuthViewModel(),
       child: const AuthWidget(),
     );
   }
