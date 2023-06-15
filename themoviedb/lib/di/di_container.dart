@@ -83,6 +83,11 @@ class _DIContainer {
         mainNavigationActions: _mainNavigationActions,
         loginProvider: _makeAuthService(),
       );
+
+  LoaderViewModel _makeLoaderViewModel(BuildContext context) => LoaderViewModel(
+        context: context,
+        authStatusProvider: _makeAuthService(),
+      );
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -94,7 +99,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   Widget makeLoader() {
     return Provider(
       lazy: false,
-      create: (context) => LoaderViewModel(context),
+      create: (context) => _diContainer._makeLoaderViewModel(context),
       child: const LoaderWidget(),
     );
   }
