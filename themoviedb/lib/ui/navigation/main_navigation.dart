@@ -1,20 +1,30 @@
 import 'package:flutter/material.dart';
 
 import 'package:themoviedb/ui/navigation/main_navigation_route_names.dart';
-import 'package:themoviedb/domain/factories/screen_factory.dart';
 import 'package:themoviedb/ui/widgets/app/my_app.dart';
 
-class MainNavigation implements MyAppNavigation {
-  final _screenFactory = const ScreenFactory();
+abstract class ScreenFactory {
+  Widget makeLoader();
+  Widget makeAuth();
+  Widget makeMainScreen();
+  Widget makeMovieDetails(int movieId);
+  Widget makeMovieTrailer(String youtubeKey);
+  Widget makeNewsList();
+  Widget makeMovieList();
+  Widget makeTVShowList();
+}
 
-  const MainNavigation();
+class MainNavigation implements MyAppNavigation {
+  final ScreenFactory screenFactory;
+
+  const MainNavigation(this.screenFactory);
 
   @override
   Map<String, Widget Function(BuildContext)> get routes => {
-        MainNavigationRouteNames.loader: (_) => _screenFactory.makeLoader(),
-        MainNavigationRouteNames.auth: (_) => _screenFactory.makeAuth(),
+        MainNavigationRouteNames.loader: (_) => screenFactory.makeLoader(),
+        MainNavigationRouteNames.auth: (_) => screenFactory.makeAuth(),
         MainNavigationRouteNames.mainScreen: (_) =>
-            _screenFactory.makeMainScreen(),
+            screenFactory.makeMainScreen(),
       };
 
   @override
@@ -24,13 +34,13 @@ class MainNavigation implements MyAppNavigation {
         final arguments = settings.arguments;
         final movieId = arguments is int ? arguments : 0;
         return MaterialPageRoute(
-          builder: (_) => _screenFactory.makeMovieDetails(movieId),
+          builder: (_) => screenFactory.makeMovieDetails(movieId),
         );
       case MainNavigationRouteNames.movieTrailer:
         final arguments = settings.arguments;
         final youtubeKey = arguments is String ? arguments : '';
         return MaterialPageRoute(
-          builder: (_) => _screenFactory.makeMovieTrailer(youtubeKey),
+          builder: (_) => screenFactory.makeMovieTrailer(youtubeKey),
         );
       default:
         const widget = Text('Navigation error!!!');
