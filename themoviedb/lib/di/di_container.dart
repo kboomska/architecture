@@ -96,6 +96,9 @@ class _DIContainer {
         logoutProvider: _makeAuthService(),
         movieProvider: _makeMovieService(),
       );
+
+  MovieListViewModel _makeMovieListViewModel() =>
+      MovieListViewModel(_makeMovieService());
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -146,7 +149,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeMovieList() {
     return ChangeNotifierProvider(
-      create: (_) => MovieListViewModel(),
+      create: (_) => _diContainer._makeMovieListViewModel(),
       child: const MovieListWidget(),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
+import 'package:themoviedb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/domain/local_entity/movie_details_local.dart';
 import 'package:themoviedb/domain/api_client/account_api_client.dart';
@@ -6,7 +7,10 @@ import 'package:themoviedb/domain/entity/popular_movie_response.dart';
 import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/configuration/configuration.dart';
 
-class MovieService implements MovieDetailsWidgetModelMovieProvider {
+class MovieService
+    implements
+        MovieDetailsWidgetModelMovieProvider,
+        MovieListViewModelMoviesProvider {
   final SessionDataProvider sessionDataProvider;
   final AccountApiClient accountApiClient;
   final MovieApiClient movieApiClient;
@@ -17,6 +21,7 @@ class MovieService implements MovieDetailsWidgetModelMovieProvider {
     required this.movieApiClient,
   });
 
+  @override
   Future<PopularMovieResponse> popularMovies(
     int page,
     String locale,
@@ -28,6 +33,7 @@ class MovieService implements MovieDetailsWidgetModelMovieProvider {
     );
   }
 
+  @override
   Future<PopularMovieResponse> searchMovies(
     int page,
     String locale,

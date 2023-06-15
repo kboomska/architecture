@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
 
+import 'package:themoviedb/ui/navigation/main_navigation_route_names.dart';
+import 'package:themoviedb/domain/entity/popular_movie_response.dart';
 import 'package:themoviedb/Library/localization_model_storage.dart';
-import 'package:themoviedb/domain/services/movie_service.dart';
-import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/entity/movie.dart';
 import 'package:themoviedb/Library/paginator.dart';
 
@@ -26,8 +26,21 @@ class MovieListPreparedData {
   });
 }
 
+abstract class MovieListViewModelMoviesProvider {
+  Future<PopularMovieResponse> popularMovies(
+    int page,
+    String locale,
+  );
+
+  Future<PopularMovieResponse> searchMovies(
+    int page,
+    String locale,
+    String query,
+  );
+}
+
 class MovieListViewModel extends ChangeNotifier {
-  final _movieService = MovieService();
+  final MovieListViewModelMoviesProvider moviesProvider;
   late final Paginator<Movie> _popularMoviePaginator;
   late final Paginator<Movie> _searchMoviePaginator;
   final _localeStorage = LocalizationModelStorage();
@@ -43,11 +56,11 @@ class MovieListViewModel extends ChangeNotifier {
   List<MovieListPreparedData> get movies => List.unmodifiable(_movies);
   late DateFormat _dateFormat;
 
-  MovieListViewModel() {
+  MovieListViewModel(this.moviesProvider) {
     _popularMoviePaginator = Paginator<Movie>(
       (page) async {
         final result =
-            await _movieService.popularMovies(page, _localeStorage.localeTag);
+            await moviesProvider.popularMovies(page, _localeStorage.localeTag);
         return PaginatorLoadResult(
           data: result.movies,
           currentPage: result.page,
@@ -57,7 +70,7 @@ class MovieListViewModel extends ChangeNotifier {
     );
     _searchMoviePaginator = Paginator<Movie>(
       (page) async {
-        final result = await _movieService.searchMovies(
+        final result = await moviesProvider.searchMovies(
           page,
           _localeStorage.localeTag,
           _searchQuery ?? '',
