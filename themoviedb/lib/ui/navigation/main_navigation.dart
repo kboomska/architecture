@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 
+import 'package:themoviedb/ui/navigation/main_navigation_route_names.dart';
 import 'package:themoviedb/domain/factories/screen_factory.dart';
+import 'package:themoviedb/ui/widgets/app/my_app.dart';
 
-abstract class MainNavigationRouteNames {
-  static const loader = '/';
-  static const auth = '/auth';
-  static const mainScreen = '/main_screen';
-  static const movieDetails = '/main_screen/movie_details';
-  static const movieTrailer = '/main_screen/movie_details/trailer';
-}
+class MainNavigation implements MyAppNavigation {
+  final _screenFactory = const ScreenFactory();
 
-class MainNavigation {
-  static final _screenFactory = ScreenFactory();
-  final routes = <String, Widget Function(BuildContext)>{
-    MainNavigationRouteNames.loader: (_) => _screenFactory.makeLoader(),
-    MainNavigationRouteNames.auth: (_) => _screenFactory.makeAuth(),
-    MainNavigationRouteNames.mainScreen: (_) => _screenFactory.makeMainScreen(),
-  };
+  const MainNavigation();
+
+  @override
+  Map<String, Widget Function(BuildContext)> get routes => {
+        MainNavigationRouteNames.loader: (_) => _screenFactory.makeLoader(),
+        MainNavigationRouteNames.auth: (_) => _screenFactory.makeAuth(),
+        MainNavigationRouteNames.mainScreen: (_) =>
+            _screenFactory.makeMainScreen(),
+      };
+
+  @override
   Route<Object> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
       case MainNavigationRouteNames.movieDetails:
@@ -37,10 +38,5 @@ class MainNavigation {
           builder: (_) => widget,
         );
     }
-  }
-
-  static void resetNavigation(BuildContext context) {
-    Navigator.of(context).pushNamedAndRemoveUntil(
-        MainNavigationRouteNames.loader, (route) => false);
   }
 }

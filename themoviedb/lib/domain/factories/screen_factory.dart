@@ -16,6 +16,8 @@ import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
 import 'package:themoviedb/ui/widgets/news/news_widget.dart';
 
 class ScreenFactory {
+  const ScreenFactory();
+
   Widget makeLoader() {
     return Provider(
       lazy: false,
