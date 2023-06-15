@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:themoviedb/domain/api_client/account_api_client.dart';
 import 'package:themoviedb/domain/api_client/auth_api_client.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
@@ -55,6 +56,9 @@ class _DIContainer {
 
   NetworkClient makeNetworkClient() => NetworkClientDefault(
         _httpClient,
+      );
+  AccountApiClient makeAccountApiClient() => AccountApiClientDefault(
+        makeNetworkClient(),
       );
   AuthApiClient makeAuthApiClient() => AuthApiClientDefault(
         makeNetworkClient(),

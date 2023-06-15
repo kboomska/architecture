@@ -14,9 +14,26 @@ extension MediaTypeAsString on MediaType {
   }
 }
 
-class AccountApiClient {
-  final _networkClient = NetworkClient();
+abstract class AccountApiClient {
+  Future<int> getAccountInfo(
+    String sessionId,
+  );
 
+  Future<void> markAsFavorite({
+    required int accountId,
+    required String sessionId,
+    required MediaType mediaType,
+    required int mediaId,
+    required bool isFavorite,
+  });
+}
+
+class AccountApiClientDefault implements AccountApiClient {
+  final NetworkClient networkClient;
+
+  const AccountApiClientDefault(this.networkClient);
+
+  @override
   Future<int> getAccountInfo(
     String sessionId,
   ) async {
@@ -26,7 +43,7 @@ class AccountApiClient {
       return result;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/account',
       parser,
       <String, dynamic>{
@@ -38,6 +55,7 @@ class AccountApiClient {
     return result;
   }
 
+  @override
   Future<void> markAsFavorite({
     required int accountId,
     required String sessionId,
@@ -57,7 +75,7 @@ class AccountApiClient {
       return result;
     }
 
-    _networkClient.post(
+    networkClient.post(
       '/account/$accountId/favorite',
       parser,
       parameters,
