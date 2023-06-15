@@ -4,16 +4,16 @@ import 'package:provider/provider.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/ui/widgets/elements/radial_percent_widget.dart';
+import 'package:themoviedb/ui/navigation/main_navigation_route_names.dart';
 import 'package:themoviedb/domain/api_client/image_downloader.dart';
-import 'package:themoviedb/ui/navigation/main_navigation.dart';
 
 class MovieDetailsMainInfoWidget extends StatelessWidget {
   const MovieDetailsMainInfoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         _TopPostersWidget(),
         Padding(
           padding: EdgeInsets.all(15.0),
@@ -220,8 +220,8 @@ class _ScoreWidget extends StatelessWidget {
                     arguments: scoreData.trailerKey,
                   );
                 },
-                child: Row(
-                  children: const [
+                child: const Row(
+                  children: [
                     Icon(
                       Icons.play_arrow,
                       color: Colors.white,
@@ -236,8 +236,8 @@ class _ScoreWidget extends StatelessWidget {
                   ],
                 ),
               )
-            : Row(
-                children: const [
+            : const Row(
+                children: [
                   Icon(
                     Icons.play_arrow,
                     color: Colors.grey,

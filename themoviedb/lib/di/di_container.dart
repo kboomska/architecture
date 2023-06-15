@@ -88,6 +88,14 @@ class _DIContainer {
         context: context,
         authStatusProvider: _makeAuthService(),
       );
+
+  MovieDetailsWidgetModel _makeMovieDetailsWidgetModel(int movieId) =>
+      MovieDetailsWidgetModel(
+        movieId: movieId,
+        navigationActions: _mainNavigationActions,
+        logoutProvider: _makeAuthService(),
+        movieProvider: _makeMovieService(),
+      );
 }
 
 class ScreenFactoryDefault implements ScreenFactory {
@@ -120,7 +128,7 @@ class ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeMovieDetails(int movieId) {
     return ChangeNotifierProvider(
-      create: (_) => MovieDetailsWidgetModel(movieId),
+      create: (_) => _diContainer._makeMovieDetailsWidgetModel(movieId),
       child: const MovieDetailsWidget(),
     );
   }

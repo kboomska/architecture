@@ -1,3 +1,4 @@
+import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/domain/local_entity/movie_details_local.dart';
 import 'package:themoviedb/domain/api_client/account_api_client.dart';
@@ -5,7 +6,7 @@ import 'package:themoviedb/domain/entity/popular_movie_response.dart';
 import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/configuration/configuration.dart';
 
-class MovieService {
+class MovieService implements MovieDetailsWidgetModelMovieProvider {
   final SessionDataProvider sessionDataProvider;
   final AccountApiClient accountApiClient;
   final MovieApiClient movieApiClient;
@@ -40,6 +41,7 @@ class MovieService {
     );
   }
 
+  @override
   Future<MovieDetailsLocal> loadDetails({
     required int movieId,
     required String locale,
@@ -54,6 +56,7 @@ class MovieService {
     return MovieDetailsLocal(details: movieDetails, isFavorite: isFavorite);
   }
 
+  @override
   Future<void> updateFavorite({
     required int movieId,
     required bool isFavorite,
