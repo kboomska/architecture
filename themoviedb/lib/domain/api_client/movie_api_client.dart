@@ -3,9 +3,37 @@ import 'package:themoviedb/domain/api_client/network_client.dart';
 import 'package:themoviedb/domain/entity/movie_details.dart';
 import 'package:themoviedb/configuration/configuration.dart';
 
-class MovieApiClient {
-  final _networkClient = NetworkClient();
+abstract class MovieApiClient {
+  Future<PopularMovieResponse> popularMovies(
+    int page,
+    String language,
+    String apiKey,
+  );
 
+  Future<PopularMovieResponse> searchMovies(
+    int page,
+    String language,
+    String query,
+    String apiKey,
+  );
+
+  Future<MovieDetails> movieDetails(
+    int movieId,
+    String locale,
+  );
+
+  Future<bool> isFavorite(
+    int movieId,
+    String sessionId,
+  );
+}
+
+class MovieApiClientDefault implements MovieApiClient {
+  final NetworkClient networkClient;
+
+  const MovieApiClientDefault(this.networkClient);
+
+  @override
   Future<PopularMovieResponse> popularMovies(
     int page,
     String language,
@@ -17,7 +45,7 @@ class MovieApiClient {
       return response;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/movie/popular',
       parser,
       <String, dynamic>{
@@ -30,6 +58,7 @@ class MovieApiClient {
     return result;
   }
 
+  @override
   Future<PopularMovieResponse> searchMovies(
     int page,
     String language,
@@ -42,7 +71,7 @@ class MovieApiClient {
       return response;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/search/movie',
       parser,
       <String, dynamic>{
@@ -57,6 +86,7 @@ class MovieApiClient {
     return result;
   }
 
+  @override
   Future<MovieDetails> movieDetails(
     int movieId,
     String locale,
@@ -67,7 +97,7 @@ class MovieApiClient {
       return response;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/movie/$movieId',
       parser,
       <String, dynamic>{
@@ -80,6 +110,7 @@ class MovieApiClient {
     return result;
   }
 
+  @override
   Future<bool> isFavorite(
     int movieId,
     String sessionId,
@@ -90,7 +121,7 @@ class MovieApiClient {
       return result;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/movie/$movieId/account_states',
       parser,
       <String, dynamic>{

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:themoviedb/domain/api_client/account_api_client.dart';
-import 'package:themoviedb/domain/api_client/auth_api_client.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
@@ -14,11 +12,15 @@ import 'package:themoviedb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_list/movie_list_widget.dart';
 import 'package:themoviedb/ui/navigation/main_navigation_actions.dart';
+import 'package:themoviedb/domain/api_client/account_api_client.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_view_model.dart';
+import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/Library/HttpClient/app_http_client.dart';
+import 'package:themoviedb/domain/api_client/auth_api_client.dart';
 import 'package:themoviedb/domain/api_client/network_client.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
+import 'package:themoviedb/domain/services/movie_service.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
 import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
@@ -35,7 +37,7 @@ class _AppFactoryDefault implements AppFactory {
 
   @override
   Widget makeApp() => MyApp(
-        navigation: _diContainer.makeMyAppNavigation(),
+        navigation: _diContainer._makeMyAppNavigation(),
       );
 }
 
@@ -46,36 +48,47 @@ class _DIContainer {
 
   const _DIContainer();
 
-  ScreenFactory makeScreenFactory() => _ScreenFactoryDefault(this);
-  MyAppNavigation makeMyAppNavigation() => MainNavigation(
-        makeScreenFactory(),
-      );
+  ScreenFactory _makeScreenFactory() => ScreenFactoryDefault(this);
 
-  SessionDataProvider makeSessionDataProvider() =>
+  MyAppNavigation _makeMyAppNavigation() =>
+      MainNavigation(_makeScreenFactory());
+
+  SessionDataProvider _makeSessionDataProvider() =>
       SessionDataProviderDefault(_secureStorage);
 
-  NetworkClient makeNetworkClient() => NetworkClientDefault(
-        _httpClient,
-      );
-  AccountApiClient makeAccountApiClient() => AccountApiClientDefault(
-        makeNetworkClient(),
-      );
-  AuthApiClient makeAuthApiClient() => AuthApiClientDefault(
-        makeNetworkClient(),
+  NetworkClient _makeNetworkClient() => NetworkClientDefault(_httpClient);
+
+  AccountApiClient _makeAccountApiClient() =>
+      AccountApiClientDefault(_makeNetworkClient());
+
+  AuthApiClient _makeAuthApiClient() =>
+      AuthApiClientDefault(_makeNetworkClient());
+
+  AuthService _makeAuthService() => AuthService(
+        sessionDataProvider: _makeSessionDataProvider(),
+        accountApiClient: _makeAccountApiClient(),
+        authApiClient: _makeAuthApiClient(),
       );
 
-  AuthService makeAuthService() => AuthService();
+  MovieApiClient _makeMovieApiClient() =>
+      MovieApiClientDefault(_makeNetworkClient());
 
-  AuthViewModel makeAuthViewModel() => AuthViewModel(
+  MovieService _makeMovieService() => MovieService(
+        sessionDataProvider: _makeSessionDataProvider(),
+        accountApiClient: _makeAccountApiClient(),
+        movieApiClient: _makeMovieApiClient(),
+      );
+
+  AuthViewModel _makeAuthViewModel() => AuthViewModel(
         mainNavigationActions: _mainNavigationActions,
-        loginProvider: makeAuthService(),
+        loginProvider: _makeAuthService(),
       );
 }
 
-class _ScreenFactoryDefault implements ScreenFactory {
+class ScreenFactoryDefault implements ScreenFactory {
   final _DIContainer _diContainer;
 
-  const _ScreenFactoryDefault(this._diContainer);
+  const ScreenFactoryDefault(this._diContainer);
 
   @override
   Widget makeLoader() {
@@ -89,7 +102,7 @@ class _ScreenFactoryDefault implements ScreenFactory {
   @override
   Widget makeAuth() {
     return ChangeNotifierProvider(
-      create: (_) => _diContainer.makeAuthViewModel(),
+      create: (_) => _diContainer._makeAuthViewModel(),
       child: const AuthWidget(),
     );
   }

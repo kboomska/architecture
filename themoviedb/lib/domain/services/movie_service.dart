@@ -6,15 +6,21 @@ import 'package:themoviedb/domain/api_client/movie_api_client.dart';
 import 'package:themoviedb/configuration/configuration.dart';
 
 class MovieService {
-  final _sessionDataProvider = SessionDataProvider();
-  final _accountApiClient = AccountApiClient();
-  final _movieApiClient = MovieApiClient();
+  final SessionDataProvider sessionDataProvider;
+  final AccountApiClient accountApiClient;
+  final MovieApiClient movieApiClient;
+
+  const MovieService({
+    required this.sessionDataProvider,
+    required this.accountApiClient,
+    required this.movieApiClient,
+  });
 
   Future<PopularMovieResponse> popularMovies(
     int page,
     String locale,
   ) async {
-    return _movieApiClient.popularMovies(
+    return movieApiClient.popularMovies(
       page,
       locale,
       Configuration.apiKey,
@@ -26,7 +32,7 @@ class MovieService {
     String locale,
     String query,
   ) async {
-    return _movieApiClient.searchMovies(
+    return movieApiClient.searchMovies(
       page,
       locale,
       query,
@@ -39,10 +45,10 @@ class MovieService {
     required String locale,
   }) async {
     var isFavorite = false;
-    final sessionId = await _sessionDataProvider.getSessionId();
-    final movieDetails = await _movieApiClient.movieDetails(movieId, locale);
+    final sessionId = await sessionDataProvider.getSessionId();
+    final movieDetails = await movieApiClient.movieDetails(movieId, locale);
     if (sessionId != null) {
-      isFavorite = await _movieApiClient.isFavorite(movieId, sessionId);
+      isFavorite = await movieApiClient.isFavorite(movieId, sessionId);
     }
 
     return MovieDetailsLocal(details: movieDetails, isFavorite: isFavorite);
@@ -52,12 +58,12 @@ class MovieService {
     required int movieId,
     required bool isFavorite,
   }) async {
-    final sessionId = await _sessionDataProvider.getSessionId();
-    final accountId = await _sessionDataProvider.getAccountId();
+    final sessionId = await sessionDataProvider.getSessionId();
+    final accountId = await sessionDataProvider.getAccountId();
 
     if (sessionId == null || accountId == null) return;
 
-    await _accountApiClient.markAsFavorite(
+    await accountApiClient.markAsFavorite(
       accountId: accountId,
       sessionId: sessionId,
       mediaType: MediaType.movie,
