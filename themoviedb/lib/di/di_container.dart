@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:themoviedb/domain/api_client/auth_api_client.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
@@ -45,12 +46,19 @@ class _DIContainer {
   const _DIContainer();
 
   ScreenFactory makeScreenFactory() => _ScreenFactoryDefault(this);
-  MyAppNavigation makeMyAppNavigation() => MainNavigation(makeScreenFactory());
+  MyAppNavigation makeMyAppNavigation() => MainNavigation(
+        makeScreenFactory(),
+      );
 
   SessionDataProvider makeSessionDataProvider() =>
       SessionDataProviderDefault(_secureStorage);
 
-  NetworkClient makeNetworkClient() => NetworkClientDefault(_httpClient);
+  NetworkClient makeNetworkClient() => NetworkClientDefault(
+        _httpClient,
+      );
+  AuthApiClient makeAuthApiClient() => AuthApiClientDefault(
+        makeNetworkClient(),
+      );
 
   AuthService makeAuthService() => AuthService();
 

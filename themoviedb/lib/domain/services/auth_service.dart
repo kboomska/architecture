@@ -1,14 +1,17 @@
-import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/domain/api_client/account_api_client.dart';
 import 'package:themoviedb/domain/api_client/auth_api_client.dart';
+import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 
 class AuthService implements AuthViewModelLoginProvider {
   final SessionDataProvider sessionDataProvider;
   final _accountApiClient = AccountApiClient();
-  final _authApiClient = AuthApiClient();
+  final AuthApiClient authApiClient;
 
-  AuthService(this.sessionDataProvider);
+  AuthService({
+    required this.sessionDataProvider,
+    required this.authApiClient,
+  });
 
   Future<bool> isAuth() async {
     final sessionId = await sessionDataProvider.getSessionId();
@@ -17,7 +20,7 @@ class AuthService implements AuthViewModelLoginProvider {
 
   @override
   Future<void> login(String login, String password) async {
-    final sessionId = await _authApiClient.auth(
+    final sessionId = await authApiClient.auth(
       username: login,
       password: password,
     );

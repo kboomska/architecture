@@ -1,9 +1,19 @@
 import 'package:themoviedb/domain/api_client/network_client.dart';
 import 'package:themoviedb/configuration/configuration.dart';
 
-class AuthApiClient {
-  final _networkClient = NetworkClient();
+abstract class AuthApiClient {
+  Future<String> auth({
+    required String username,
+    required String password,
+  });
+}
 
+class AuthApiClientDefault implements AuthApiClient {
+  final NetworkClient networkClient;
+
+  const AuthApiClientDefault(this.networkClient);
+
+  @override
   Future<String> auth({
     required String username,
     required String password,
@@ -28,7 +38,7 @@ class AuthApiClient {
       return token;
     }
 
-    final result = _networkClient.get(
+    final result = networkClient.get(
       '/authentication/token/new',
       parser,
       <String, dynamic>{'api_key': Configuration.apiKey},
@@ -54,7 +64,7 @@ class AuthApiClient {
       return token;
     }
 
-    final result = _networkClient.post(
+    final result = networkClient.post(
       '/authentication/token/validate_with_login',
       parser,
       parameters,
@@ -77,7 +87,7 @@ class AuthApiClient {
       return sessionId;
     }
 
-    final result = _networkClient.post(
+    final result = networkClient.post(
       '/authentication/session/new',
       parser,
       parameters,
