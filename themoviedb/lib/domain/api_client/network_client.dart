@@ -1,11 +1,29 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:themoviedb/configuration/configuration.dart';
 import 'package:themoviedb/domain/api_client/api_client_exception.dart';
+import 'package:themoviedb/Library/HttpClient/app_http_client.dart';
+import 'package:themoviedb/configuration/configuration.dart';
 
-class NetworkClient {
-  final _client = HttpClient();
+abstract class NetworkClient {
+  Future<T> get<T>(
+    String path,
+    T Function(dynamic json) parser, [
+    Map<String, dynamic>? parameters,
+  ]);
+
+  Future<T> post<T>(
+    String path,
+    T Function(dynamic json) parser,
+    Map<String, dynamic> bodyParameters, [
+    Map<String, dynamic>? urlParameters,
+  ]);
+}
+
+class NetworkClientDefault implements NetworkClient {
+  final AppHttpClient client;
+
+  const NetworkClientDefault(this.client);
 
   Uri _makeUri(String path, [Map<String, dynamic>? parameters]) {
     final uri = Uri.parse('${Configuration.host}$path');
@@ -16,6 +34,7 @@ class NetworkClient {
     }
   }
 
+  @override
   Future<T> get<T>(
     String path,
     T Function(dynamic json) parser, [
@@ -24,7 +43,7 @@ class NetworkClient {
     final url = _makeUri(path, parameters);
 
     try {
-      final request = await _client.getUrl(url);
+      final request = await client.getUrl(url);
       final response = await request.close();
       final dynamic json = (await response.jsonDecode());
       _validateResponse(response, json);
@@ -39,6 +58,7 @@ class NetworkClient {
     }
   }
 
+  @override
   Future<T> post<T>(
     String path,
     T Function(dynamic json) parser,
@@ -51,7 +71,7 @@ class NetworkClient {
         urlParameters,
       );
 
-      final request = await _client.postUrl(url);
+      final request = await client.postUrl(url);
       request.headers.contentType = ContentType.json;
       request.write(jsonEncode(bodyParameters));
       final response = await request.close();

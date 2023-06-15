@@ -13,6 +13,8 @@ import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_list/movie_list_widget.dart';
 import 'package:themoviedb/ui/navigation/main_navigation_actions.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_view_model.dart';
+import 'package:themoviedb/Library/HttpClient/app_http_client.dart';
+import 'package:themoviedb/domain/api_client/network_client.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
@@ -38,6 +40,7 @@ class _AppFactoryDefault implements AppFactory {
 class _DIContainer {
   final _mainNavigationActions = const MainNavigationActions();
   final SecureStorage _secureStorage = const SecureStorageDefault();
+  final AppHttpClient _httpClient = const AppHttpClientDefault();
 
   const _DIContainer();
 
@@ -46,6 +49,8 @@ class _DIContainer {
 
   SessionDataProvider makeSessionDataProvider() =>
       SessionDataProviderDefault(_secureStorage);
+
+  NetworkClient makeNetworkClient() => NetworkClientDefault(_httpClient);
 
   AuthService makeAuthService() => AuthService();
 
