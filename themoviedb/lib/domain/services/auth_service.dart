@@ -4,12 +4,14 @@ import 'package:themoviedb/domain/api_client/auth_api_client.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 
 class AuthService implements AuthViewModelLoginProvider {
-  final _sessionDataProvider = SessionDataProvider();
+  final SessionDataProvider sessionDataProvider;
   final _accountApiClient = AccountApiClient();
   final _authApiClient = AuthApiClient();
 
+  AuthService(this.sessionDataProvider);
+
   Future<bool> isAuth() async {
-    final sessionId = await _sessionDataProvider.getSessionId();
+    final sessionId = await sessionDataProvider.getSessionId();
     return sessionId != null;
   }
 
@@ -21,12 +23,12 @@ class AuthService implements AuthViewModelLoginProvider {
     );
     final accountId = await _accountApiClient.getAccountInfo(sessionId);
 
-    await _sessionDataProvider.setSessionId(sessionId);
-    await _sessionDataProvider.setAccountId(accountId);
+    await sessionDataProvider.setSessionId(sessionId);
+    await sessionDataProvider.setAccountId(accountId);
   }
 
   Future<void> logout() async {
-    await _sessionDataProvider.removeSessionId();
-    await _sessionDataProvider.removeAccountId();
+    await sessionDataProvider.removeSessionId();
+    await sessionDataProvider.removeAccountId();
   }
 }

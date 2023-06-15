@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
-import 'package:themoviedb/domain/services/auth_service.dart';
 
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget_model.dart';
 import 'package:themoviedb/ui/widgets/movie_trailer/movie_trailer_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_details/movie_details_widget.dart';
+import 'package:themoviedb/Library/FlutterSecureStorage/secure_storage.dart';
+import 'package:themoviedb/domain/data_providers/session_data_provider.dart';
 import 'package:themoviedb/ui/widgets/tv_show_list/tv_show_list_widget.dart';
 import 'package:themoviedb/ui/widgets/movie_list/movie_list_view_model.dart';
 import 'package:themoviedb/ui/widgets/main_screen/main_screen_widget.dart';
@@ -15,6 +16,7 @@ import 'package:themoviedb/ui/widgets/loader/loader_view_model.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_view_model.dart';
 import 'package:themoviedb/ui/widgets/loader/loader_widget.dart';
 import 'package:themoviedb/ui/navigation/main_navigation.dart';
+import 'package:themoviedb/domain/services/auth_service.dart';
 import 'package:themoviedb/ui/widgets/auth/auth_widget.dart';
 import 'package:themoviedb/ui/widgets/news/news_widget.dart';
 import 'package:themoviedb/ui/widgets/app/my_app.dart';
@@ -35,11 +37,15 @@ class _AppFactoryDefault implements AppFactory {
 
 class _DIContainer {
   final _mainNavigationActions = const MainNavigationActions();
+  final SecureStorage _secureStorage = const SecureStorageDefault();
 
   const _DIContainer();
 
   ScreenFactory makeScreenFactory() => _ScreenFactoryDefault(this);
   MyAppNavigation makeMyAppNavigation() => MainNavigation(makeScreenFactory());
+
+  SessionDataProvider makeSessionDataProvider() =>
+      SessionDataProviderDefault(_secureStorage);
 
   AuthService makeAuthService() => AuthService();
 

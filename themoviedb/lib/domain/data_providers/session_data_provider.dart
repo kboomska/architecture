@@ -1,33 +1,50 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:themoviedb/Library/FlutterSecureStorage/secure_storage.dart';
 
 abstract class Keys {
   static const sessionId = 'session_id';
   static const accountId = 'account_id';
 }
 
-class SessionDataProvider {
-  static const _secureStorage = FlutterSecureStorage();
+abstract class SessionDataProvider {
+  Future<String?> getSessionId();
+  Future<void> setSessionId(String value);
+  Future<void> removeSessionId();
+  Future<int?> getAccountId();
+  Future<void> setAccountId(int value);
+  Future<void> removeAccountId();
+}
 
-  Future<String?> getSessionId() => _secureStorage.read(key: Keys.sessionId);
+class SessionDataProviderDefault implements SessionDataProvider {
+  final SecureStorage secureStorage;
 
+  const SessionDataProviderDefault(this.secureStorage);
+
+  @override
+  Future<String?> getSessionId() => secureStorage.read(key: Keys.sessionId);
+
+  @override
   Future<void> setSessionId(String value) {
-    return _secureStorage.write(key: Keys.sessionId, value: value);
+    return secureStorage.write(key: Keys.sessionId, value: value);
   }
 
+  @override
   Future<void> removeSessionId() {
-    return _secureStorage.delete(key: Keys.sessionId);
+    return secureStorage.delete(key: Keys.sessionId);
   }
 
+  @override
   Future<int?> getAccountId() async {
-    final id = await _secureStorage.read(key: Keys.accountId);
+    final id = await secureStorage.read(key: Keys.accountId);
     return id != null ? int.tryParse(id) : null;
   }
 
+  @override
   Future<void> setAccountId(int value) {
-    return _secureStorage.write(key: Keys.accountId, value: value.toString());
+    return secureStorage.write(key: Keys.accountId, value: value.toString());
   }
 
+  @override
   Future<void> removeAccountId() {
-    return _secureStorage.delete(key: Keys.accountId);
+    return secureStorage.delete(key: Keys.accountId);
   }
 }
