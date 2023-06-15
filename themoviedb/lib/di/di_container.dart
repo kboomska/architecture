@@ -114,7 +114,7 @@ class ScreenFactoryDefault implements ScreenFactory {
 
   @override
   Widget makeMainScreen() {
-    return const MainScreenWidget();
+    return MainScreenWidget(screenFactory: this);
   }
 
   @override
